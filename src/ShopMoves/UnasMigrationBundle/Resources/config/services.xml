@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="shopmoves.unasmigration.api.config_provider.class">ShopMoves\UnasMigrationBundle\Api\ConfigProvider</parameter>
+        <parameter key="shopmoves.unasmigration.api.apicall.class">ShopMoves\UnasMigrationBundle\Api\ApiCall</parameter>
+        <parameter key="shopmoves.unasmigration.curl.curl.class">ShopMoves\UnasMigrationBundle\Curl\Curl</parameter>
+        <parameter key="shopmoves.unasmigration.config.config.class">ShopMoves\UnasMigrationBundle\Config\Config</parameter>
+        <parameter key="shopmoves.unasmigration.provider.dataprovider.class">ShopMoves\UnasMigrationBundle\Provider\DataProvider</parameter>
+        <parameter key="shopmoves.unasmigration.migration.migration_manager.class">ShopMoves\UnasMigrationBundle\Migration\MigrationManager</parameter>
+        <parameter key="shopmoves.unasmigration.utils.csvtoarray.class">ShopMoves\UnasMigrationBundle\Utils\CsvToArray</parameter>
+    </parameters>
+    <services>
+
+        <service id="curl" class="%shopmoves.unasmigration.curl.curl.class%"/>
+
+        <service id="csv_to_array" class="%shopmoves.unasmigration.utils.csvtoarray.class%"/>
+
+        <service id="config" class="%shopmoves.unasmigration.config.config.class%"/>
+
+        <service id="data_provider" class="%shopmoves.unasmigration.provider.dataprovider.class%">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="shopmoves.unasmigration.api.config_provider" class="%shopmoves.unasmigration.api.config_provider.class%"/>
+
+        <service id="shopmoves.unasmigration.migration.migration_manager" class="%shopmoves.unasmigration.migration.migration_manager.class%">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="shopmoves.unasmigration.api.apicall" class="%shopmoves.unasmigration.api.apicall.class%">
+            <argument type="service" id="curl" />
+            <argument type="expression">service('shopmoves.unasmigration.api.config_provider').getConfig()</argument>
+        </service>
+    </services>
+</container>

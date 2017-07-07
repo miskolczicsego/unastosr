@@ -1,0 +1,118 @@
+{
+  "Customers": {
+    "Customer": [
+      {
+        "Id": "7016095",
+        "Email": "kufhs@sfise.hu",
+        "Username": "kufhs@sfise.hu",
+        "Contact": {
+          "Name": "faefa",
+          "Phone": "+36301231231",
+          "Mobile": "+36301231231",
+          "Lang": "hu"
+        },
+        "Addresses": {
+          "Invoice": {
+            "Name": "faefa",
+            "ZIP": "1212",
+            "City": "Budapest, XXI.",
+            "Street": "oigjsaorgj",
+            "StreetName": "faefa",
+            "County": {},
+            "Country": "Magyarország",
+            "CountryCode": "hu",
+            "TaxNumber": {}
+          },
+          "Shipping": {
+            "Name": "faefa",
+            "ZIP": "1212",
+            "City": "Budapest, XXI.",
+            "Street": "oigjsaorgj",
+            "StreetName": "faefa",
+            "County": {},
+            "Country": "Magyarország",
+            "CountryCode": "hu"
+          }
+        },
+        "Dates": {
+          "Registration": "1498546287",
+          "Modification": "1498546563",
+          "Login": "1498546563"
+        },
+        "Authorize": {
+          "Customer": "no",
+          "Admin": "yes"
+        },
+        "Discount": {
+          "Sum": "0",
+          "Direct": "0"
+        },
+        "VirtualMoney": {
+          "Balance": "0"
+        },
+        "Newsletter": {
+          "Subscribed": "yes",
+          "Authorized": "no"
+        },
+        "Others": ""
+      },
+      {
+        "Id": "7025550",
+        "Email": "seoifhs@sefs.ehu",
+        "Username": "seoifhs@sefs.ehu",
+        "Contact": {
+          "Name": "foijseoifjse",
+          "Phone": "+36301231234",
+          "Mobile": "+36301231334",
+          "Lang": "hu"
+        },
+        "Addresses": {
+          "Invoice": {
+            "Name": "foijseoifjse",
+            "ZIP": "1212",
+            "City": "Budapest, XXI.",
+            "Street": "soiefjoies",
+            "StreetName": "foijseoifjse",
+            "County": {},
+            "Country": "Magyarország",
+            "CountryCode": "hu",
+            "TaxNumber": {}
+          },
+          "Shipping": {
+            "Name": "gjrgjriojg",
+            "ZIP": "1213",
+            "City": "Budapest, XXI.",
+            "Street": "soeifjsoeif",
+            "StreetName": "gjrgjriojg",
+            "County": {},
+            "Country": "Magyarország",
+            "CountryCode": "hu"
+          }
+        },
+        "Dates": {
+          "Registration": "1498645809",
+          "Modification": "1498645809",
+          "Login": "1498645809"
+        },
+        "Authorize": {
+          "Customer": "yes",
+          "Admin": "yes"
+        },
+        "Discount": {
+          "Sum": "0",
+          "Direct": "0"
+        },
+        "VirtualMoney": {
+          "Balance": "0"
+        },
+        "Newsletter": {
+          "Subscribed": "no",
+          "Authorized": "no"
+        },
+        "Others": {
+          "Ip": "89.134.88.237"
+        }
+      }
+    ]
+  }
+}

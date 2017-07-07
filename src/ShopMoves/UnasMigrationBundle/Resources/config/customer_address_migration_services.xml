@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="shopmoves.unasmigration.address.migration.addressmigration.class">ShopMoves\UnasMigrationBundle\Address\Migration\AddressMigration</parameter>
+        <parameter key="shopmoves.unasmigration.address.provider.addressdataprovider.class">ShopMoves\UnasMigrationBundle\Address\Provider\AddressDataProvider</parameter>
+    </parameters>
+    <services>
+        <service id="customer_address_migration" class="%shopmoves.unasmigration.address.migration.addressmigration.class%">
+            <argument type="service" id="customer_address_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+        <service id="customer_address_data_provider" class="%shopmoves.unasmigration.address.provider.addressdataprovider.class%">
+            <argument type="service" id="service_container"/>
+        </service>
+
+    </services>
+</container>

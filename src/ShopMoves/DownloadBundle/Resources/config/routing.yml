@@ -1,0 +1,3 @@
+shop_moves_download_homepage:
+    path:     /
+    defaults: { _controller: ShopMovesDownloadBundle:Default:index }

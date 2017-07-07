@@ -1,0 +1,9 @@
+shop_moves_unas_migration_homepage:
+    path:     /
+    defaults: { _controller: ShopMovesUnasMigrationBundle:Default:index }
+shop_moves_unas_migration_unasget:
+    path:     /unasget
+    defaults: { _controller: ShopMovesUnasMigrationBundle:Default:unasGet }
+shop_moves_unas_migration_start:
+    path: /shop_moves_unas_migration_start
+    defaults: { _controller: ShopMovesUnasMigrationBundle:Migration:migrate }

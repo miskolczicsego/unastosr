@@ -1,0 +1,11 @@
+shop_moves_download:
+    resource: "@ShopMovesDownloadBundle/Resources/config/routing.yml"
+    prefix:   /
+
+shop_moves_web_interface:
+    resource: "@ShopMovesWebInterfaceBundle/Resources/config/routing.yml"
+    prefix:   /
+
+shop_moves_unas_migration:
+    resource: "@ShopMovesUnasMigrationBundle/Resources/config/routing.yml"
+    prefix:   /

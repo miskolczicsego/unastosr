@@ -1,0 +1,12 @@
+{
+  "name": "unas",
+  "version": "0.0.1",
+  "dependencies": {
+    "command-line-args": "^4.0.6",
+    "csvtojson": "^1.1.7",
+    "request": "latest",
+    "soap": "latest",
+    "xml2js": "latest",
+    "xml2json": "latest"
+  }
+}

@@ -1,0 +1,7 @@
+shop_moves_unas_webinterface_home:
+    path:     /home
+    defaults: { _controller: ShopMovesWebInterfaceBundle:UnasMigration:index }
+
+shop_moves_unas_webinterface_start:
+    path:     /start
+    defaults: { _controller: ShopMovesWebInterfaceBundle:UnasMigration:start }

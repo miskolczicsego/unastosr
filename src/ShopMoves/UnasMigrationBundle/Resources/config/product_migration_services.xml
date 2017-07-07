@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="shopmoves.unasmigration.product.migration.productmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductMigration</parameter>
+        <parameter key="shopmoves.unasmigration.product.migration.productspecialpricemigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductSpecialPriceMigration</parameter>
+        <parameter key="shopmoves.unasmigration.product.migration.producturlaliasmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductUrlAliasMigration</parameter>
+        <parameter key="shopmoves.unasmigration.product.migration.productdescriptionmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductDescriptionMigration</parameter>
+        <parameter key="shopmoves.unasmigration.product.provider.product_data_provider.class">ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider</parameter>
+        <parameter key="shopmoves.unasmigration.product.helper.taxhelper.class">ShopMoves\UnasMigrationBundle\Helper\TaxHelper</parameter>
+
+    </parameters>
+    <services>
+
+        <service id="product_data_provider" class="%shopmoves.unasmigration.product.provider.product_data_provider.class%">
+            <argument type="service" id="service_container" />
+        </service>
+
+        <service id="tax_helper" class="%shopmoves.unasmigration.product.helper.taxhelper.class%">
+        </service>
+
+        <service id="product_migration" class="%shopmoves.unasmigration.product.migration.productmigration.class%">
+            <argument type="service" id="product_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="product_description_migration" class="%shopmoves.unasmigration.product.migration.productdescriptionmigration.class%">
+            <argument type="service" id="product_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="product_url_alias_migration" class="%shopmoves.unasmigration.product.migration.producturlaliasmigration.class%">
+            <argument type="service" id="product_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+
+    </services>
+</container>

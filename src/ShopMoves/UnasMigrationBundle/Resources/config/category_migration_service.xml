@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+
+    <parameters>
+        <parameter key="shopmoves.unasmigration.category.provider.categoryprovider.class">ShopMoves\UnasMigrationBundle\Category\Provider\CategoryDataProvider</parameter>
+        <parameter key="shopmoves.unasmigration.category.migration.categorymigration.class">ShopMoves\UnasMigrationBundle\Category\Migration\CategoryMigration</parameter>
+        <parameter key="shopmoves.unasmigration.category.migration.categorydescriptionmigration.class">ShopMoves\UnasMigrationBundle\Category\Migration\CategoryDescriptionMigration</parameter>
+    </parameters>
+
+    <services>
+        <service id="category_data_provider" class="%shopmoves.unasmigration.category.provider.categoryprovider.class%">
+            <argument type="service" id="service_container" />
+        </service>
+        <service id="category_migration" class="%shopmoves.unasmigration.category.migration.categorymigration.class%" >
+            <argument type="service" id="category_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="category_desription_migration" class="%shopmoves.unasmigration.category.migration.categorydescriptionmigration.class%" >
+            <argument type="service" id="category_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+    </services>
+</container>
