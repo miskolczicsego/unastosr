@@ -75,8 +75,9 @@ abstract class BatchMigration
                 return;
             }
             $response = $this->apiCall->execute('POST', '/batch',  $batch);
-            dump($response);
+//            dump($response);
         }
+
     }
 
     public function isProductDeleted($product)
@@ -90,5 +91,19 @@ abstract class BatchMigration
     public function getProductOuterId($product)
     {
         return base64_encode($product->Sku);
+    }
+
+    public function getUrl()
+    {
+        return "http://miskolczicsego.api.shoprenter.hu";
+    }
+
+    public function addToBatchArray($resourceUri, $id, $data)
+    {
+        $this->batchData['requests'][] = [
+            'method' => 'POST',
+            'uri' => $this->getUrl() . $resourceUri . $id,
+            'data' => $data
+        ];
     }
 }

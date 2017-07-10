@@ -34,6 +34,7 @@ class MigrationManager
 
     public function start()
     {
+        $start = microtime(true);
 //        $currentMigrationId = key($this->migrations);
         $this->container->get('shopmoves.unasmigration.api.config_provider')->setConfig();
 
@@ -42,11 +43,15 @@ class MigrationManager
 //        $this->container->get('customer_migration')->migrate();
 //        $this->container->get('customer_address_migration')->migrate();
         $this->container->get('category_migration')->migrate();
-        $this->container->get('category_desription_migration')->migrate();
+//        $this->container->get('category_desription_migration')->migrate();
 //        $this->container->get('product_migration')->migrate();
 //        $this->container->get('product_description_migration')->migrate();
 //        $this->container->get('product_special_price_migration')->migrate();
 //        $this->container->get('product_url_alias_migration')->migrate();
+
+        $time = microtime(true) - $start;
+        dump(number_format($time, 2, '.', ' ') . ' Sec');
+        dump( number_format(memory_get_peak_usage() / 1000000, 2, '.', ' ') . ' MB');
 
 
 //        $this->migrations[$currentMigrationId]->migrate();

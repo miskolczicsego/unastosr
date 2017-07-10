@@ -31,10 +31,12 @@ class CategoryDescriptionMigration extends BatchMigration
         $category = $product->Categories->Category;
         $queue = [];
        if(is_array($category)){
-            foreach ($category as $cat) {
+
+           foreach ($category as $cat) {
                 if (!array_key_exists($cat->Id, $this->categoryIds)){
                     $this->categoryIds[$cat->Id] = 1;
                     $categoryParts = explode('|', $cat->Name);
+
                     if (count($categoryParts) > 1) {
                         $counter = 0;
                         foreach ($categoryParts as $categoryPart) {
@@ -47,7 +49,7 @@ class CategoryDescriptionMigration extends BatchMigration
                             ];
                             $this->batchData['requests'][] = [
                                 'method' => 'POST',
-                                'uri' => 'http://demo.api.aurora.miskolczicsego/categoryDescriptions/' . base64_encode($category->Id . '_' . $categoryPart . '_' . $counter),
+                                'uri' => 'http://miskolczicsego.api.shoprenter.hu/categoryDescriptions/' . base64_encode($category->Id . '_' . $categoryPart . '_' . $counter),
                                 'data' => $data
                             ];
                             ++$counter;
@@ -64,7 +66,7 @@ class CategoryDescriptionMigration extends BatchMigration
                     ];
                     $this->batchData['requests'][] = [
                         'method' => 'POST',
-                        'uri' => 'http://demo.api.aurora.miskolczicsego/categoryDescriptions/' . base64_encode($cat->Id . $cat->Name ),
+                        'uri' => 'http://miskolczicsego.api.shoprenter.hu/categoryDescriptions/' . base64_encode($cat->Id . $cat->Name ),
                         'data' => $data
                     ];
                 }
@@ -87,7 +89,7 @@ class CategoryDescriptionMigration extends BatchMigration
                         ];
                         $this->batchData['requests'][] = [
                             'method' => 'POST',
-                            'uri' => 'http://demo.api.aurora.miskolczicsego/categoryDescriptions/' . base64_encode($category->Id . $category->Name),
+                            'uri' => 'http://miskolczicsego.api.shoprenter.hu/categoryDescriptions/' . base64_encode($category->Id . $category->Name),
                             'data' => $data
                         ];
                         ++$counter;
@@ -103,7 +105,7 @@ class CategoryDescriptionMigration extends BatchMigration
             ];
             $this->batchData['requests'][] = [
                 'method' => 'POST',
-                'uri' => 'http://demo.api.aurora.miskolczicsego/categoryDescriptions/' . base64_encode($category->Id . $category->Name),
+                'uri' => 'http://miskolczicsego.api.shoprenter.hu/categoryDescriptions/' . base64_encode($category->Id . $category->Name),
                 'data' => $data
             ];
         }

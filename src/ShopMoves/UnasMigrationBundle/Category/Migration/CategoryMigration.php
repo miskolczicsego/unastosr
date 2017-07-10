@@ -16,6 +16,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class CategoryMigration extends BatchMigration
 {
 
+    protected $categoryUri = '/categories/';
+
+    protected $categoryDescriptionUri = '/categoryDescriptions/';
 
     public function __construct(CategoryDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
@@ -28,75 +31,58 @@ class CategoryMigration extends BatchMigration
             return;
         }
 
-        $category = $product->Categories->Category;
-        $queue = [];
+        $hungarianLanguageId = 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ==';
 
-        //több kategória is van a kategóriákon belül => egy termék több kategóriába is tartozik
+        $category = $product->Categories->Category;
+
         if(is_array($category)) {
-            //menjünk végig, tároljuk el ami még nem volt, és rakjuk be a batch tömbbe az id-kat
             foreach ($category as $cat) {
                 if(!array_key_exists($cat->Id, $this->categoryIds)) {
-                    $this->categoryIds[$cat->Id] = 1;
+                    $this->categoryIds[$cat->Id] = true;
                     $categoryParts = explode('|', $cat->Name);
-                    //el van választva | jellel? ha igen akkor szülő gyerek-ként kell felépíteni
                     if(count($categoryParts) > 1) {
                         $counter = 0;
                         foreach ($categoryParts as $categoryPart) {
 
-                            array_push($queue, $categoryPart);
+                            $categoryOuterId = $this->getCategoryOuterId($categoryPart);
+                            $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($categoryPart);
+                            $parentCategoryId = $this->getCategoryOuterId($categoryParts[$counter - 1]);
 
-                            $data['id'] = base64_encode($cat->Id . '_'. implode('|', $queue));
+                            $data['id'] = $categoryOuterId;
 
-//                            if ($counter > 0) {
-//                                $data['parentCategory']['id'] = base64_encode($cat->Id . '_'. $categoryParts[0]);
-//                            }
+                            if ($counter > 0) {
+                                $data['parentCategory']['id'] = $parentCategoryId;
+                            }
 
-                            $descriptionData['id'] = base64_encode($cat->Id . $categoryPart);
+                            $descriptionData['id'] = $categoryDescriptionOuterId;
                             $descriptionData['name'] = $categoryPart;
-                            $descriptionData['category']['id'] = base64_encode($cat->Id . '_'. $categoryPart);
+                            $descriptionData['category']['id'] = $categoryOuterId;
                             $descriptionData['language'] = [
-                                "id" => 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ=='
+                                "id" => $hungarianLanguageId
                             ];
 
 
-                            $this->batchData['requests'][] = [
-                                'method' => 'POST',
-                                'uri' => 'http://demo.api.aurora.miskolczicsego/categories/' .  base64_encode($cat->Id . '_'. $categoryPart),
-                                'data' => $data
-                            ];
+                            $this->addToBatchArray($this->categoryUri, $categoryOuterId, $data);
+                            $this->addToBatchArray($this->categoryDescriptionUri, $categoryDescriptionOuterId, $descriptionData);
 
-                            $this->batchData['requests'][] = [
-                                'method' => 'POST',
-                                'uri' => 'http://demo.api.aurora.miskolczicsego/categoryDescription/' .  base64_encode($cat->Id . $categoryPart),
-                                'data' => $descriptionData
-                            ];
                             ++$counter;
                         }
                     } else {
-                        $outerId = $this->getOuterId($cat);
-                        $categoryIds[$cat->Id] = 1;
+                        $categoryIds[$cat->Id] = true;
 
-                        $data['id'] = $outerId;
+                        $categoryOuterId = $this->getCategoryOuterId($cat->Name);
+                        $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($cat->Name);
+                        $data['id'] = $categoryOuterId;
 
-                        $descriptionData['id'] = base64_encode($category->Id . $category->Name);
-                        $descriptionData['name'] = $category->Name;
-                        $descriptionData['category']['id'] = base64_encode($category->Id);
+                        $descriptionData['id'] =  $categoryDescriptionOuterId;
+                        $descriptionData['name'] = $cat->Name;
+                        $descriptionData['category']['id'] = $categoryOuterId;
                         $descriptionData['language'] = [
-                            "id" => 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ=='
+                            "id" => $hungarianLanguageId
                         ];
 
-                        $this->batchData['requests'][] = [
-                            'method' => 'POST',
-                            'uri' => 'http://demo.api.aurora.miskolczicsego/categories/' . $outerId,
-                            'data' => $data
-                        ];
-
-
-                        $this->batchData['requests'][] = [
-                            'method' => 'POST',
-                            'uri' => 'http://demo.api.aurora.miskolczicsego/categoryDescriptions/' . base64_encode($category->Id . $category->Name),
-                            'data' => $descriptionData
-                        ];
+                        $this->addToBatchArray($this->categoryUri, $categoryOuterId, $data);
+                        $this->addToBatchArray($this->categoryDescriptionUri, $categoryDescriptionOuterId, $descriptionData);
                     }
                 }
             }
@@ -110,56 +96,51 @@ class CategoryMigration extends BatchMigration
                 if(count($categoryParts) > 1) {
                     $counter = 0;
                     foreach ($categoryParts as $categoryPart) {
-                        array_push($queue, $categoryPart);
-                        $data['id'] = base64_encode($category->Id . '_'. $categoryPart);
+                        $categoryOuterId = $this->getCategoryOuterId($categoryPart);
+                        $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($categoryPart);
+                        $parentCategoryOuterId = $this->getCategoryOuterId( $categoryParts[$counter - 1]);
+                        $data['id'] = $categoryOuterId;
 
-                        $descriptionData['id'] = base64_encode($category->Id . $categoryPart);
+                        $descriptionData['id'] = $categoryDescriptionOuterId;
                         $descriptionData['name'] = $categoryPart;
-                        $descriptionData['category']['id'] = base64_encode($category->Id . '_'. $categoryPart);
+                        $descriptionData['category']['id'] = $categoryOuterId;
                         $descriptionData['language'] = [
                             "id" => 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ=='
                         ];
 
-//                        if ($counter > 0) {
-//                            $data['parentCategory']['id'] = base64_encode($category->Id . '_'. $categoryParts[0]);
-//                        }
+                        if ($counter > 0) {
+                            $data['parentCategory']['id'] = $parentCategoryOuterId;
+                        }
 
 
-                        $this->batchData['requests'][] = [
-                            'method' => 'POST',
-                            'uri' => 'http://demo.api.aurora.miskolczicsego/categories/' . base64_encode($category->Id . '_'. $categoryPart),
-                            'data' => $data
-                        ];
-
-                        $this->batchData['requests'][] = [
-                            'method' => 'POST',
-                            'uri' => 'http://demo.api.aurora.miskolczicsego/categoryDescriptions/' . base64_encode($category->Id . $category->Name),
-                            'data' => $descriptionData
-                        ];
+                        $this->addToBatchArray($this->categoryUri, $categoryOuterId, $data);
+                        $this->addToBatchArray($this->categoryDescriptionUri, $categoryDescriptionOuterId, $descriptionData);
                         ++$counter;
                     };
                 } else {
-                    $outerId = $this->getOuterId($category);
                     $this->categoryIds[$category->Id] = 1;
-                    $data['id'] = $outerId;
+                    $categoryOuterId = $this->getCategoryOuterId($category->Name);
+                    $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($category->Name);
 
-                    $descriptionData['id'] = base64_encode($category->Id . $category->Name);
+                    $data['id'] = $categoryOuterId;
+
+                    $descriptionData['id'] = $categoryDescriptionOuterId;
                     $descriptionData['name'] = $category->Name;
-                    $descriptionData['category']['id'] = base64_encode($category->Id);
+                    $descriptionData['category']['id'] =  $categoryOuterId;
                     $descriptionData['language'] = [
                         "id" => 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ=='
                     ];
 
                     $this->batchData['requests'][] = [
                         'method' => 'POST',
-                        'uri' => 'http://demo.api.aurora.miskolczicsego/categories/' . $outerId,
+                        'uri' => $this->getUrl() . $this->categoryUri .   $this->getCategoryOuterId( $category->Name),
                         'data' => $data
                     ];
 
 
                     $this->batchData['requests'][] = [
                         'method' => 'POST',
-                        'uri' => 'http://demo.api.aurora.miskolczicsego/categoryDescriptions/' . base64_encode($category->Id . $category->Name),
+                        'uri' => $this->getUrl() . $this->categoryDescriptionUri . $this->getCategoryDescriptionOuterId($category->Name),
                         'data' => $descriptionData
                     ];
                 }
@@ -172,9 +153,14 @@ class CategoryMigration extends BatchMigration
         return base64_encode($category->Id);
     }
 
-    public function getDeeperOuterId($queue)
+
+    public function getCategoryOuterId($data)
     {
-        $id = implode('|', $queue);
-        return base64_encode($id);
+        return base64_encode('category_name-Category=' . $data);
+    }
+
+    public function getCategoryDescriptionOuterId($data)
+    {
+        return base64_encode('category_name-CategoryDescription=' . $data);
     }
 }

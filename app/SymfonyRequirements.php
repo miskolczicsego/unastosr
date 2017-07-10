@@ -174,7 +174,7 @@ class RequirementCollection implements IteratorAggregate
     private $requirements = array();
 
     /**
-     * Gets the current RequirementCollection as an Provider.
+     * Gets the current RequirementCollection as an Iterator.
      *
      * @return Traversable A Traversable interface
      */
