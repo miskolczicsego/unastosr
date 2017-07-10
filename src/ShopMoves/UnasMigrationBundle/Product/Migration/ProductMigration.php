@@ -17,6 +17,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ProductMigration extends BatchMigration
 {
 
+    protected $productUri = '/products/';
+
     /**
      * ProductMigration constructor.
      * @param ProductDataProvider $dataProvider
@@ -29,7 +31,7 @@ class ProductMigration extends BatchMigration
     }
 
     /**
-     * @param $data
+     * @param $product
      */
 
     public function process($product)
@@ -38,7 +40,7 @@ class ProductMigration extends BatchMigration
         if ($this->isProductDeleted($product)) {
             return;
         }
-        $outerId = $this->getOuterId($product);
+        $outerId = $this->getProductOuterId($product);
         $data['id'] = $outerId;
         $data['sku'] = $product->Sku;
         $data['status'] = $product->Statuses->Status->Value;
@@ -47,18 +49,15 @@ class ProductMigration extends BatchMigration
         $data['taxClass'] = [
             'id' => $this->container->get('tax_helper')->getTaxId($product->Prices->Vat)
         ];
+        $data['parentProduct']['id'] = $this->getParentProduct($product);
+        $data['productClass']['id'] = $this->getProductClassId($product);
 
-//        dump($data);die;
-        $this->batchData['requests'][] = [
-            'method' => 'POST',
-            'uri' => 'http://demo.api.aurora.miskolczicsego/products/' . $outerId,
-            'data' => $data
-        ];
+        $this->addToBatchArray($this->productUri, $outerId, $data);
     }
 
     public function getOuterId($product)
     {
-        return base64_encode($product->Sku);
+//        return base64_encode($product->Sku);/
     }
 
     public function getProductPrice($productPrices)
@@ -78,5 +77,26 @@ class ProductMigration extends BatchMigration
         }
 
         return $sum;
+    }
+
+    public function getParentProduct($product)
+    {
+        if(isset($product->Types) && $product->Types->Type === 'child') {
+            return base64_encode('product_id-Product=' . $product->Types->Parent);
+        }
+    }
+
+    public function getProductClassId($product)
+    {
+//        dump($product->Datas);die;
+        if (isset($product->Datas) && is_array($product->Datas->Data)) {
+            $class = array_pop($product->Datas->Data);
+            return base64_encode('product_class-Product=' . $class->Value);
+        } else {
+            if (isset($product->Datas) && $product->Datas->Data->Name === 'Típus') {
+                return base64_encode('product_class-Product=' . $product->Datas->Data->Value);
+            }
+        }
+        return '';
     }
 }

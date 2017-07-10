@@ -27,7 +27,7 @@ class CategoryMigration extends BatchMigration
 
     public function process($product)
     {
-        if ($this->isProductDeleted($product)) {
+        if ($this->isProductDeleted($product) || !isset($product->Categories)) {
             return;
         }
 
@@ -87,18 +87,17 @@ class CategoryMigration extends BatchMigration
                 }
             }
         }
-        //ha csak egy kategória van a felsorolásban
         if(!is_array($category)) {
-            //ha még nem találkoztunk ilyennel akkor mentsük el
             if(!array_key_exists($category->Id, $this->categoryIds)) {
                 $this->categoryIds[$category->Id] = 1;
                 $categoryParts = explode('|', $category->Name);
                 if(count($categoryParts) > 1) {
+
                     $counter = 0;
+
                     foreach ($categoryParts as $categoryPart) {
                         $categoryOuterId = $this->getCategoryOuterId($categoryPart);
                         $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($categoryPart);
-                        $parentCategoryOuterId = $this->getCategoryOuterId( $categoryParts[$counter - 1]);
                         $data['id'] = $categoryOuterId;
 
                         $descriptionData['id'] = $categoryDescriptionOuterId;
@@ -109,6 +108,7 @@ class CategoryMigration extends BatchMigration
                         ];
 
                         if ($counter > 0) {
+                            $parentCategoryOuterId = $this->getCategoryOuterId( $categoryParts[$counter-1]);
                             $data['parentCategory']['id'] = $parentCategoryOuterId;
                         }
 
@@ -118,6 +118,7 @@ class CategoryMigration extends BatchMigration
                         ++$counter;
                     };
                 } else {
+
                     $this->categoryIds[$category->Id] = 1;
                     $categoryOuterId = $this->getCategoryOuterId($category->Name);
                     $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($category->Name);
@@ -131,18 +132,8 @@ class CategoryMigration extends BatchMigration
                         "id" => 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ=='
                     ];
 
-                    $this->batchData['requests'][] = [
-                        'method' => 'POST',
-                        'uri' => $this->getUrl() . $this->categoryUri .   $this->getCategoryOuterId( $category->Name),
-                        'data' => $data
-                    ];
-
-
-                    $this->batchData['requests'][] = [
-                        'method' => 'POST',
-                        'uri' => $this->getUrl() . $this->categoryDescriptionUri . $this->getCategoryDescriptionOuterId($category->Name),
-                        'data' => $descriptionData
-                    ];
+                    $this->addToBatchArray($this->categoryUri, $categoryOuterId, $data);
+                    $this->addToBatchArray($this->categoryDescriptionUri, $categoryDescriptionOuterId, $descriptionData);
                 }
             }
         }

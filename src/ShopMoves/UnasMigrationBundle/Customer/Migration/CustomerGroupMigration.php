@@ -19,6 +19,8 @@ class CustomerGroupMigration extends BatchMigration
 
     protected $groups  = [];
 
+    protected $customerGroupUri = '/customerGroups/';
+
     public function __construct(CustomerDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
         parent::__construct($dataProvider, $apiCall, $container);
@@ -34,12 +36,7 @@ class CustomerGroupMigration extends BatchMigration
             $data['id'] = $groupOuterId;
             $data['name'] = $customer->Group->Name;
 
-            $this->batchData['requests'][] =
-                [
-                    'method' => 'POST',
-                    'uri' => 'demo.api.aurora.miskolczicsego/customerGroups/' . $groupOuterId,
-                    'data' => $data
-                ];
+            $this->addToBatchArray($this->customerGroupUri, $groupOuterId, $data);
         }
     }
 

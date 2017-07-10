@@ -10,12 +10,15 @@
         <parameter key="shopmoves.unasmigration.provider.dataprovider.class">ShopMoves\UnasMigrationBundle\Provider\DataProvider</parameter>
         <parameter key="shopmoves.unasmigration.migration.migration_manager.class">ShopMoves\UnasMigrationBundle\Migration\MigrationManager</parameter>
         <parameter key="shopmoves.unasmigration.utils.csvtoarray.class">ShopMoves\UnasMigrationBundle\Utils\CsvToArray</parameter>
+        <parameter key="shopmoves.unasmigration.utils.imagedownloader.class">ShopMoves\UnasMigrationBundle\Utils\ImageDownloader</parameter>
     </parameters>
     <services>
 
         <service id="curl" class="%shopmoves.unasmigration.curl.curl.class%"/>
 
         <service id="csv_to_array" class="%shopmoves.unasmigration.utils.csvtoarray.class%"/>
+
+        <service id="image_downloader" class="%shopmoves.unasmigration.utils.imagedownloader.class%"/>
 
         <service id="config" class="%shopmoves.unasmigration.config.config.class%"/>
 
@@ -24,6 +27,7 @@
         </service>
 
         <service id="shopmoves.unasmigration.api.config_provider" class="%shopmoves.unasmigration.api.config_provider.class%"/>
+
 
         <service id="shopmoves.unasmigration.migration.migration_manager" class="%shopmoves.unasmigration.migration.migration_manager.class%">
             <argument type="service" id="service_container"/>

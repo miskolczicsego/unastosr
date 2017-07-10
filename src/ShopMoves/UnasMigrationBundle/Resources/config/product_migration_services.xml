@@ -6,6 +6,8 @@
         <parameter key="shopmoves.unasmigration.product.migration.productmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.migration.productspecialpricemigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductSpecialPriceMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.migration.producturlaliasmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductUrlAliasMigration</parameter>
+        <parameter key="shopmoves.unasmigration.product.migration.productimagemigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductImageMigration</parameter>
+        <parameter key="shopmoves.unasmigration.product.migration.productclassmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductClassMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.migration.productdescriptionmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductDescriptionMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.provider.product_data_provider.class">ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider</parameter>
         <parameter key="shopmoves.unasmigration.product.helper.taxhelper.class">ShopMoves\UnasMigrationBundle\Helper\TaxHelper</parameter>
@@ -37,6 +39,25 @@
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>
         </service>
+
+        <service id="product_special_price_migration" class="%shopmoves.unasmigration.product.migration.productspecialpricemigration.class%">
+            <argument type="service" id="product_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="product_image_migration" class="%shopmoves.unasmigration.product.migration.productimagemigration.class%">
+            <argument type="service" id="product_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="product_class_migration" class="%shopmoves.unasmigration.product.migration.productclassmigration.class%">
+            <argument type="service" id="product_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
 
 
     </services>

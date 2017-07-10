@@ -15,6 +15,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class CustomerMigration extends BatchMigration
 {
 
+    protected $customerUri = '/customers/';
+
+
+
     /**
      * CustomerMigration constructor.
      * @param CustomerDataProvider $dataProvider
@@ -43,16 +47,7 @@ class CustomerMigration extends BatchMigration
             'id' => isset($customerData->Group->Id) ? base64_encode($customerData->Group->Id) : $this->getDefaultCustomerGroupOuterId()
         ];
 
-//        $customerData['defaultAddress'] = [
-//            'id' => $data->Addresses->Shipping->Street
-//        ];
-        $this->batchData['requests'][] =
-            [
-                'method' => 'POST',
-                'uri' => 'http://demo.api.aurora.miskolczicsego/customers/' . $this->getOuterId($customerData->Id),
-                'data' => $data
-            ];
-
+        $this->addToBatchArray($this->customerUri, $customerData->Id, $data);
     }
 
     public function getCustomerPhoneNumber($data)

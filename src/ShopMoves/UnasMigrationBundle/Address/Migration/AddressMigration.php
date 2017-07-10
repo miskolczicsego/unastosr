@@ -17,6 +17,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class AddressMigration extends BatchMigration
 {
 
+    protected $addressUri = '/addresses/';
+
     public function __construct(AddressDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
         parent::__construct($dataProvider, $apiCall, $container);
@@ -43,13 +45,11 @@ class AddressMigration extends BatchMigration
                 $data['city'] = $address['address']->Shipping->City;
                 $data['country']['id'] = 'Y291bnRyeS1jb3VudHJ5X2lkPTE';
                 $data['customer']['id'] = base64_encode($address['customerId']);
-                $this->batchData['requests'][] =
-                    [
-                        'method' => 'POST',
-                        'uri' => 'http://demo.api.aurora.miskolczicsego/addresses/' . $shippingOuterId,
-                        'data' => $data
-                    ];
+
+               $this->addToBatchArray($this->addressUri, $shippingOuterId, $data);
+
             } else {
+                //SHIPPING
                 $dataShipping['id'] = $shippingOuterId;
                 $dataShipping['firstname'] = $shippingName['firstname'];
                 $dataShipping['lastname'] = $shippingName['lastname'];
@@ -59,13 +59,7 @@ class AddressMigration extends BatchMigration
                 $dataShipping['country']['id'] = 'Y291bnRyeS1jb3VudHJ5X2lkPTE';
                 $dataShipping['customer']['id'] = base64_encode($address['customerId']);
 
-                $this->batchData['requests'][] =
-                    [
-                        'method' => 'POST',
-                        'uri' => 'http://demo.api.aurora.miskolczicsego/addresses/' . $shippingOuterId,
-                        'data' => $dataShipping
-                    ];
-
+                //INVOICE
                 $dataInvoice['id'] = $invoiceOuterId;
                 $dataInvoice['firstname'] = $invoiceName['firstname'];
                 $dataInvoice['lastname'] = $invoiceName['lastname'];
@@ -74,12 +68,9 @@ class AddressMigration extends BatchMigration
                 $dataInvoice['city'] = $address['address']->Invoice->City;
                 $dataInvoice['country']['id'] = 'Y291bnRyeS1jb3VudHJ5X2lkPTE';
                 $dataInvoice['customer']['id'] = base64_encode($address['customerId']);
-                $this->batchData['requests'][] =
-                    [
-                        'method' => 'POST',
-                        'uri' => 'demo.api.aurora.miskolczicsego/addresses/' . $invoiceOuterId,
-                        'data' => $dataInvoice
-                    ];
+
+                $this->addToBatchArray($this->addressUri, $shippingOuterId, $dataShipping);
+                $this->addToBatchArray($this->addressUri, $invoiceOuterId, $dataInvoice);
             }
         }
     }

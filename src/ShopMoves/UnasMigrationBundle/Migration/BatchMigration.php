@@ -63,6 +63,8 @@ abstract class BatchMigration
         }
 //        dump($this->batchData);die;
         $batch = [];
+
+
         //Laci ajánlása szerint élesen 1000 postot rakjunk egy tömbbe
         //Lokálon a post mérete lehet kicsi ezért itt kisebb kell
         //Élesen a limitek:
@@ -70,12 +72,12 @@ abstract class BatchMigration
 
         //customerhez 50 kell hogy átmenjen mindenki lokálon
         //producthoz 200
-        foreach (array_chunk($this->batchData['requests'], 50, 1) as $batch['requests']) {
+        foreach (array_chunk($this->batchData['requests'], 100, 1) as $batch['requests']) {
             if(!$batch['requests']) {
                 return;
             }
             $response = $this->apiCall->execute('POST', '/batch',  $batch);
-//            dump($response);
+            dump($response);
         }
 
     }
@@ -90,19 +92,19 @@ abstract class BatchMigration
 
     public function getProductOuterId($product)
     {
-        return base64_encode($product->Sku);
+        return base64_encode('product_id-Product=' . $product->Sku);
     }
 
     public function getUrl()
     {
-        return "http://miskolczicsego.api.shoprenter.hu";
+        return "http://demo.api.aurora.miskolczicsego";
     }
 
     public function addToBatchArray($resourceUri, $id, $data)
     {
         $this->batchData['requests'][] = [
             'method' => 'POST',
-            'uri' => $this->getUrl() . $resourceUri . $id,
+            'uri' => $this->getUrl() . $resourceUri . (!empty($id) ? $id : ''),
             'data' => $data
         ];
     }

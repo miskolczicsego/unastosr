@@ -18,6 +18,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ProductDescriptionMigration extends BatchMigration
 {
 
+    protected $productDescriptionUri = '/productDescriptions/';
+
     public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
         parent::__construct($dataProvider, $apiCall, $container);
@@ -49,15 +51,11 @@ class ProductDescriptionMigration extends BatchMigration
             "id" => 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ=='
         ];
 
-        $this->batchData['requests'][] = [
-            'method' => 'POST',
-            'uri' => 'http://demo.api.aurora.miskolczicsego/productDescriptions/' . $outerId,
-            'data' => $data
-        ];
+        $this->addToBatchArray($this->productDescriptionUri, $outerId, $data);
     }
 
     public function getOuterId($product)
     {
-        return base64_encode($product->Name . '_' . $product->Sku);
+        return base64_encode('product_description-Product='.$product->Id);
     }
 }

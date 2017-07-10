@@ -17,6 +17,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ProductSpecialPriceMigration extends BatchMigration
 {
 
+    protected $specialPriceUri = '/productSpecials/';
+
     public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
         parent::__construct($dataProvider, $apiCall, $container);
@@ -40,11 +42,7 @@ class ProductSpecialPriceMigration extends BatchMigration
         $data['dateTo'] = isset($price[$product->Sku]['end']) ? $price[$product->Sku]['end'] : '0000-00-00';
         $data['product']['id'] = $this->getProductOuterId($product);
 
-        $this->batchData['requests'][] = [
-            'method' => 'POST',
-            'uri' => 'http://demo.api.aurora.miskolczicsego/productSpecials/' . $outerId,
-            'data' => $data
-        ];
+        $this->addToBatchArray($this->specialPriceUri, $outerId, $data);
     }
 
     public function getSpecialPrice($product)

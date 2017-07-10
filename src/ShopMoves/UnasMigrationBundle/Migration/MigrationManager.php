@@ -27,10 +27,10 @@ class MigrationManager
         $this->container = $container;
     }
 
-    public function addMigration(BatchMigration $migration)
-    {
-        $this->migrations[$migration->getMigrationId()] = $migration;
-    }
+//    public function addMigration(BatchMigration $migration)
+//    {
+//        $this->migrations[$migration->getMigrationId()] = $migration;
+//    }
 
     public function start()
     {
@@ -43,11 +43,12 @@ class MigrationManager
 //        $this->container->get('customer_migration')->migrate();
 //        $this->container->get('customer_address_migration')->migrate();
         $this->container->get('category_migration')->migrate();
-//        $this->container->get('category_desription_migration')->migrate();
-//        $this->container->get('product_migration')->migrate();
+        $this->container->get('product_migration')->migrate();
 //        $this->container->get('product_description_migration')->migrate();
+//        $this->container->get('product_class_migration')->migrate();
 //        $this->container->get('product_special_price_migration')->migrate();
 //        $this->container->get('product_url_alias_migration')->migrate();
+//        $this->container->get('product_image_migration')->migrate();
 
         $time = microtime(true) - $start;
         dump(number_format($time, 2, '.', ' ') . ' Sec');
