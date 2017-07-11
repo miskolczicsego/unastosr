@@ -19,9 +19,12 @@ class AddressMigration extends BatchMigration
 
     protected $addressUri = '/addresses/';
 
+    protected $countries;
+
     public function __construct(AddressDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
         parent::__construct($dataProvider, $apiCall, $container);
+        $this->countries = $this->container->get('country_helper')->getSRCountries();
     }
 
     public function process($addresses)
@@ -43,7 +46,13 @@ class AddressMigration extends BatchMigration
                 $data['address1'] = $address['address']->Shipping->Street;
                 $data['postcode'] = $address['address']->Shipping->ZIP;
                 $data['city'] = $address['address']->Shipping->City;
-                $data['country']['id'] = 'Y291bnRyeS1jb3VudHJ5X2lkPTE';
+                $data['country']['id'] =
+                    array_key_exists($address['address']->Shipping->Country, $this->countries)
+                    ? base64_encode(
+                        'country-country_id='.$this->countries[$address['address']->Shipping->Country]
+                    )
+                    : base64_encode('country-country_id='.$this->countries['Magyarország']);
+
                 $data['customer']['id'] = base64_encode($address['customerId']);
 
                $this->addToBatchArray($this->addressUri, $shippingOuterId, $data);
@@ -56,7 +65,9 @@ class AddressMigration extends BatchMigration
                 $dataShipping['address1'] = $address['address']->Shipping->Street;
                 $dataShipping['postcode'] = $address['address']->Shipping->ZIP;
                 $dataShipping['city'] = $address['address']->Shipping->City;
-                $dataShipping['country']['id'] = 'Y291bnRyeS1jb3VudHJ5X2lkPTE';
+                $dataShipping['country']['id'] =  array_key_exists($address['address']->Shipping->Country, $this->countries) ?
+                    base64_encode('country-country_id='.$this->countries[$address['address']->Shipping->Country])
+                    : base64_encode('country-country_id='.$this->countries['Magyarország']);
                 $dataShipping['customer']['id'] = base64_encode($address['customerId']);
 
                 //INVOICE
@@ -66,7 +77,9 @@ class AddressMigration extends BatchMigration
                 $dataInvoice['address1'] = $address['address']->Invoice->Street;
                 $dataInvoice['postcode'] = $address['address']->Invoice->ZIP;
                 $dataInvoice['city'] = $address['address']->Invoice->City;
-                $dataInvoice['country']['id'] = 'Y291bnRyeS1jb3VudHJ5X2lkPTE';
+                $dataInvoice['country']['id'] =  array_key_exists($address['address']->Invoice->Country, $this->countries) ?
+                    base64_encode('country-country_id='.$this->countries[$address['address']->Invoice->Country])
+                    : base64_encode('country-country_id='.$this->countries['Magyarország']);
                 $dataInvoice['customer']['id'] = base64_encode($address['customerId']);
 
                 $this->addToBatchArray($this->addressUri, $shippingOuterId, $dataShipping);
@@ -99,7 +112,8 @@ class AddressMigration extends BatchMigration
             $address['address']->Shipping->Name .
             $address['address']->Shipping->ZIP .
             $address['address']->Shipping->City .
-            $address['address']->Shipping->Street
+            $address['address']->Shipping->Street .
+            $address['address']->Shipping->Country
         );
     }
 
@@ -109,7 +123,8 @@ class AddressMigration extends BatchMigration
             $address['address']->Invoice->Name .
             $address['address']->Invoice->ZIP .
             $address['address']->Invoice->City .
-            $address['address']->Invoice->Street
+            $address['address']->Invoice->Street .
+            $address['address']->Invoice->Country
         );
     }
 

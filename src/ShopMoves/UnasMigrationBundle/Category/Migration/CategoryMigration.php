@@ -20,6 +20,7 @@ class CategoryMigration extends BatchMigration
 
     protected $categoryDescriptionUri = '/categoryDescriptions/';
 
+
     public function __construct(CategoryDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
         parent::__construct($dataProvider, $apiCall, $container);
@@ -43,15 +44,18 @@ class CategoryMigration extends BatchMigration
                     if(count($categoryParts) > 1) {
                         $counter = 0;
                         foreach ($categoryParts as $categoryPart) {
+                            $id = $categoryPart . '+' . $product->Sku;
 
-                            $categoryOuterId = $this->getCategoryOuterId($categoryPart);
-                            $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($categoryPart);
-                            $parentCategoryId = $this->getCategoryOuterId($categoryParts[$counter - 1]);
+                            $categoryOuterId = $this->getCategoryOuterId($id);
+                            $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($id);
 
                             $data['id'] = $categoryOuterId;
 
+
                             if ($counter > 0) {
-                                $data['parentCategory']['id'] = $parentCategoryId;
+                                $parentId = $categoryParts[$counter - 1] . '+' . $product->Sku;
+                                $parentCategoryOuterId = $this->getCategoryOuterId($parentId);
+                                $data['parentCategory']['id'] = $parentCategoryOuterId;
                             }
 
                             $descriptionData['id'] = $categoryDescriptionOuterId;
@@ -72,6 +76,7 @@ class CategoryMigration extends BatchMigration
 
                         $categoryOuterId = $this->getCategoryOuterId($cat->Name);
                         $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($cat->Name);
+
                         $data['id'] = $categoryOuterId;
 
                         $descriptionData['id'] =  $categoryDescriptionOuterId;
@@ -96,19 +101,23 @@ class CategoryMigration extends BatchMigration
                     $counter = 0;
 
                     foreach ($categoryParts as $categoryPart) {
-                        $categoryOuterId = $this->getCategoryOuterId($categoryPart);
+                        $id = $categoryPart . '+' . $product->Sku;
+
+                        $categoryOuterId = $this->getCategoryOuterId($id);
                         $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($categoryPart);
+
                         $data['id'] = $categoryOuterId;
 
                         $descriptionData['id'] = $categoryDescriptionOuterId;
                         $descriptionData['name'] = $categoryPart;
                         $descriptionData['category']['id'] = $categoryOuterId;
                         $descriptionData['language'] = [
-                            "id" => 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ=='
+                            "id" => $hungarianLanguageId
                         ];
 
                         if ($counter > 0) {
-                            $parentCategoryOuterId = $this->getCategoryOuterId( $categoryParts[$counter-1]);
+                            $parentId = $categoryParts[$counter - 1] . '+' . $product->Sku;
+                            $parentCategoryOuterId = $this->getCategoryOuterId($parentId);
                             $data['parentCategory']['id'] = $parentCategoryOuterId;
                         }
 
@@ -129,7 +138,7 @@ class CategoryMigration extends BatchMigration
                     $descriptionData['name'] = $category->Name;
                     $descriptionData['category']['id'] =  $categoryOuterId;
                     $descriptionData['language'] = [
-                        "id" => 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ=='
+                        "id" => $hungarianLanguageId
                     ];
 
                     $this->addToBatchArray($this->categoryUri, $categoryOuterId, $data);
@@ -153,5 +162,10 @@ class CategoryMigration extends BatchMigration
     public function getCategoryDescriptionOuterId($data)
     {
         return base64_encode('category_name-CategoryDescription=' . $data);
+    }
+
+    public function getProductToCategoryOuterId($data)
+    {
+        return base64_encode('product_id-ProductToCategory=' . $data);
     }
 }

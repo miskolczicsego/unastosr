@@ -60,6 +60,6 @@ class Response
      */
     public function getCode()
     {
-        return $this->info['http_code'];
+        return $this->statusCode;
     }
 }

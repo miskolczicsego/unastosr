@@ -7,6 +7,7 @@
     <parameters>
         <parameter key="shopmoves.unasmigration.address.migration.addressmigration.class">ShopMoves\UnasMigrationBundle\Address\Migration\AddressMigration</parameter>
         <parameter key="shopmoves.unasmigration.address.provider.addressdataprovider.class">ShopMoves\UnasMigrationBundle\Address\Provider\AddressDataProvider</parameter>
+        <parameter key="shopmoves.unasmigration.helper.countryhelper.class">ShopMoves\UnasMigrationBundle\Helper\CountryHelper</parameter>
     </parameters>
     <services>
         <service id="customer_address_migration" class="%shopmoves.unasmigration.address.migration.addressmigration.class%">
@@ -16,6 +17,9 @@
         </service>
         <service id="customer_address_data_provider" class="%shopmoves.unasmigration.address.provider.addressdataprovider.class%">
             <argument type="service" id="service_container"/>
+        </service>
+        <service id="country_helper" class="%shopmoves.unasmigration.helper.countryhelper.class%">
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
         </service>
 
     </services>
