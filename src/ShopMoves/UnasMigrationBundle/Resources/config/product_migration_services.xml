@@ -47,6 +47,7 @@
         </service>
 
         <service id="product_image_migration" class="%shopmoves.unasmigration.product.migration.productimagemigration.class%">
+            <argument type="service" id="image_downloader" />
             <argument type="service" id="product_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>

@@ -19,6 +19,8 @@ class ProductMigration extends BatchMigration
 
     protected $productUri = '/products/';
 
+    protected $mainImageToProduct;
+
     /**
      * ProductMigration constructor.
      * @param ProductDataProvider $dataProvider
@@ -49,6 +51,7 @@ class ProductMigration extends BatchMigration
         $data['taxClass'] = [
             'id' => $this->container->get('tax_helper')->getTaxId($product->Prices->Vat)
         ];
+        $data['mainPicture'] = $this->getMainPictureToProduct($product);
         $data['parentProduct']['id'] = $this->getParentProduct($product);
         $data['productClass']['id'] = $this->getProductClassId($product);
 
@@ -86,6 +89,8 @@ class ProductMigration extends BatchMigration
         }
     }
 
+
+    //TODO: ez a kiscipo boltra jó, de máshol nem ez lesz a Terméktípus => fix
     public function getProductClassId($product)
     {
 //        dump($product->Datas);die;
@@ -98,5 +103,20 @@ class ProductMigration extends BatchMigration
             }
         }
         return '';
+    }
+
+    public function getMainPictureToProduct($product)
+    {
+        if (!isset($product->Images)) {
+            return '';
+        }
+        $image = $product->Images->Image;
+        if (is_array($image)) {
+            $path = 'product/' . basename($image[0]->Url->Medium);
+        } else {
+            $path = 'product/' . basename($image->Url->Medium);
+        }
+
+        return $path;
     }
 }

@@ -20,6 +20,11 @@ abstract class BatchMigration
      */
     protected $categoryIds = [];
 
+    /**
+     * @var array $mainImageToProduct
+     */
+    protected $mainImageToProduct;
+
     protected $id;
 
     protected $batchData;
@@ -58,8 +63,13 @@ abstract class BatchMigration
     public function migrate()
     {
         $datas = $this->dataProvider->getData();
+        $time = 0;
         foreach ($datas as $data){
+            $start = microtime(true);
             $this->process($data);
+            $time += (microtime(true) - $start);
+            file_put_contents('time.log', number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL);
+            file_put_contents('memory.log', number_format(memory_get_peak_usage() / 1000000, 2, '.', ' ') . ' MB' . PHP_EOL);
         }
 //        dump($this->batchData);die;
         $batch = [];
@@ -72,7 +82,8 @@ abstract class BatchMigration
 
         //customerhez 50 kell hogy átmenjen mindenki lokálon
         //producthoz 200
-        foreach (array_chunk($this->batchData['requests'], 100, 1) as $batch['requests']) {
+        $chunk = array_chunk($this->batchData['requests'], 50, 1);
+        foreach ($chunk as $batch['requests']) {
             if(!$batch['requests']) {
                 return;
             }
