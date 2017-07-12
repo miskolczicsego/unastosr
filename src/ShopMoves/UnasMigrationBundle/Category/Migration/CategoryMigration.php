@@ -20,6 +20,8 @@ class CategoryMigration extends BatchMigration
 
     protected $categoryDescriptionUri = '/categoryDescriptions/';
 
+    protected $productCategoryRelationsUri = '/productCategoryRelations/';
+
     protected $hungarianLanguageId = 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ==';
 
     public function __construct(CategoryDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
@@ -36,43 +38,29 @@ class CategoryMigration extends BatchMigration
 
         if(is_array($category)) {
             foreach ($category as $cat) {
-                $this->buildCategoryBatch($cat);
+                $this->buildCategoryBatch($cat, $product);
             }
         } else {
-            $this->buildCategoryBatch($category);
+            $this->buildCategoryBatch($category, $product);
         }
     }
 
-    public function getOuterId($category)
+    public function buildCategoryBatch($category, $product)
     {
-        return base64_encode($category->Id);
-    }
+        $productToCategoryOuterId =  $this->getProductToCategoryOuterId($product->Id);
+        $productToCategoryData['id'] = $productToCategoryOuterId;
+        $productToCategoryData['product']['id'] = $this->getProductOuterId($product);
+        $productToCategoryData['category']['id'] = $this->getCategoryOuterId($category->Name);
 
-
-    public function getCategoryOuterId($data)
-    {
-        return base64_encode('category_name-Category=' . $data);
-    }
-
-    public function getCategoryDescriptionOuterId($data)
-    {
-        return base64_encode('category_name-CategoryDescription=' . $data);
-    }
-
-    public function getProductToCategoryOuterId($data)
-    {
-        return base64_encode('product_id-ProductToCategory=' . $data);
-    }
-
-
-    public function buildCategoryBatch($category)
-    {
+        $this->addToBatchArray($this->productCategoryRelationsUri, $productToCategoryOuterId, $productToCategoryData);
         if(!array_key_exists($category->Id, $this->categoryIds)) {
             $this->categoryIds[$category->Id] = 1;
             $categoryParts = explode('|', $category->Name);
             if(count($categoryParts) > 1) {
                 $counter = 0;
                 $queue = [];
+
+
                 foreach ($categoryParts as $categoryPart) {
                     $parentCategoryString = implode('|', $queue);
                     array_push($queue, $categoryPart);
@@ -117,24 +105,25 @@ class CategoryMigration extends BatchMigration
             }
         }
     }
-//    public function getOuterId($category)
-//    {
-//        return ($category->Id);
-//    }
-//
-//
-//    public function getCategoryOuterId($data)
-//    {
-//        return ('category_name-Category=' . $data);
-//    }
-//
-//    public function getCategoryDescriptionOuterId($data)
-//    {
-//        return ('category_name-CategoryDescription=' . $data);
-//    }
-//
-//    public function getProductToCategoryOuterId($data)
-//    {
-//        return ('product_id-ProductToCategory=' . $data);
-//    }
+
+    public function getOuterId($category)
+    {
+        return base64_encode($category->Id);
+    }
+
+
+    public function getCategoryOuterId($data)
+    {
+        return base64_encode('category_name-Category=' . $data);
+    }
+
+    public function getCategoryDescriptionOuterId($data)
+    {
+        return base64_encode('category_name-CategoryDescription=' . $data);
+    }
+
+    public function getProductToCategoryOuterId($data)
+    {
+        return base64_encode('product_id-ProductToCategory=' . $data);
+    }
 }
