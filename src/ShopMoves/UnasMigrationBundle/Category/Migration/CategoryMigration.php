@@ -20,7 +20,7 @@ class CategoryMigration extends BatchMigration
 
     protected $categoryDescriptionUri = '/categoryDescriptions/';
 
-    protected $productCategoryRelationsUri = '/productCategoryRelations/';
+    protected $productCategoryRelationsUri = '/productCategoryRelations';
 
     protected $hungarianLanguageId = 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ==';
 
@@ -47,12 +47,10 @@ class CategoryMigration extends BatchMigration
 
     public function buildCategoryBatch($category, $product)
     {
-        $productToCategoryOuterId =  $this->getProductToCategoryOuterId($product->Id);
-        $productToCategoryData['id'] = $productToCategoryOuterId;
         $productToCategoryData['product']['id'] = $this->getProductOuterId($product);
         $productToCategoryData['category']['id'] = $this->getCategoryOuterId($category->Name);
 
-        $this->addToBatchArray($this->productCategoryRelationsUri, $productToCategoryOuterId, $productToCategoryData);
+        $this->addToBatchArray($this->productCategoryRelationsUri, '', $productToCategoryData);
         if(!array_key_exists($category->Id, $this->categoryIds)) {
             $this->categoryIds[$category->Id] = 1;
             $categoryParts = explode('|', $category->Name);
