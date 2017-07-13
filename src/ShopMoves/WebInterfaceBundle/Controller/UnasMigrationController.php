@@ -67,4 +67,13 @@ class UnasMigrationController extends Controller
 
 //        return new RedirectResponse($this->generateUrl("shop_moves_unas_webinterface_home"));
     }
+
+    public function downloadImagesAction()
+    {
+        $downloader = $this->container->get('downloader.image_downloader');
+
+        $response = $downloader->download();
+
+        return new Response($response);
+    }
 }

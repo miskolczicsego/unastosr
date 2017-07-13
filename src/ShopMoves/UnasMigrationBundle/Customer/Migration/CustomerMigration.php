@@ -35,7 +35,8 @@ class CustomerMigration extends BatchMigration
     {
         $nameParts = $this->container->get('name_helper')->separate($customerData->Contact->Name);
 
-        $data['id'] =  $this->getOuterId($customerData->Id);
+        $customerOuterId = $this->getOuterId($customerData->Id);
+        $data['id'] =  $customerOuterId;
         $data['firstname'] = $nameParts['firstname'];
         $data['lastname'] = $nameParts['lastname'];
         $data['email'] = $customerData->Email;
@@ -47,7 +48,7 @@ class CustomerMigration extends BatchMigration
             'id' => isset($customerData->Group->Id) ? base64_encode($customerData->Group->Id) : $this->getDefaultCustomerGroupOuterId()
         ];
 
-        $this->addToBatchArray($this->customerUri, $customerData->Id, $data);
+        $this->addToBatchArray($this->customerUri, $customerOuterId, $data);
     }
 
     public function getCustomerPhoneNumber($data)
@@ -63,6 +64,7 @@ class CustomerMigration extends BatchMigration
         return base64_encode($id);
     }
 
+    //fixen az alapértelmezett csoport
     public function getDefaultCustomerGroupOuterId()
     {
         return base64_encode('customerGroup-customer_group_id=8');

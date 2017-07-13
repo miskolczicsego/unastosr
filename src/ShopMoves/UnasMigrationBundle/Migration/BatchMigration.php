@@ -10,6 +10,7 @@ namespace ShopMoves\UnasMigrationBundle\Migration;
 
 
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
+use ShopMoves\UnasMigrationBundle\Product\Migration\ProductImageMigration;
 use ShopMoves\UnasMigrationBundle\Provider\IDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -63,32 +64,26 @@ abstract class BatchMigration
     public function migrate()
     {
         $datas = $this->dataProvider->getData();
-        $time = 0;
-        foreach ($datas as $data){
-            $start = microtime(true);
-            $this->process($data);
-            $time += (microtime(true) - $start);
-            file_put_contents('time.log', number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL);
-            file_put_contents('memory.log', number_format(memory_get_peak_usage() / 1000000, 2, '.', ' ') . ' MB' . PHP_EOL);
+//        $time = 0;
+        $counter = 1;
+        if ($this instanceof ProductImageMigration) {
+            $batchSize = 1;
+        } else {
+            $batchSize = 200;
         }
-//        dump($this->batchData);die;
+        foreach ($datas as $data){
+//            $start = microtime(true);
+            $this->process($data);
+
+
+//            $time += (microtime(true) - $start);
+//            file_put_contents('time.log', number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL);
+//            file_put_contents('memory.log', number_format(memory_get_peak_usage() / 1000000, 2, '.', ' ') . ' MB' . PHP_EOL);
+        }
         $batch = [];
-
-
-        //Laci ajánlása szerint élesen 1000 postot rakjunk egy tömbbe
-        //Lokálon a post mérete lehet kicsi ezért itt kisebb kell
-        //Élesen a limitek:
-        //240s TO, 32M, 10.000 elemű requests tömb
-
-        //customerhez 50 kell hogy átmenjen mindenki lokálon
-        //producthoz 200
-        $chunk = array_chunk($this->batchData['requests'], 50, 1);
+        $chunk = array_chunk($this->batchData['requests'],50, true);
         foreach ($chunk as $batch['requests']) {
-            if(!$batch['requests']) {
-                return;
-            }
-            $response = $this->apiCall->execute('POST', '/batch',  $batch);
-            dump($response);
+            $this->sendBatchData($batch);
         }
 
     }
@@ -108,7 +103,9 @@ abstract class BatchMigration
 
     public function getUrl()
     {
-        return "http://demo.api.aurora.miskolczicsego";
+        return "http://miskolczicsego.api.shoprenter.hu";
+
+//        return "http://demo.api.aurora.miskolczicsego";
     }
 
     public function addToBatchArray($resourceUri, $id, $data)
@@ -118,5 +115,24 @@ abstract class BatchMigration
             'uri' => $this->getUrl() . $resourceUri . (!empty($id) ? $id : ''),
             'data' => $data
         ];
+        unset($data);
+    }
+    //Laci ajánlása szerint élesen 1000 postot rakjunk egy tömbbe
+    //Lokálon a post mérete lehet kicsi ezért itt kisebb kell
+    //Élesen a limitek:
+    //240s TO, 32M, 10.000 elemű requests tömb
+
+    //customerhez 50 kell hogy átmenjen mindenki lokálon
+    //producthoz 200
+
+
+    public function sendBatchData($data)
+    {
+        $response = $this->apiCall->execute('POST', '/batch',  $data);
+
+        $data = $response->getData();
+
+        file_put_contents('responseData.log', $data . PHP_EOL, FILE_APPEND);
+//        $this->batchData = [];
     }
 }

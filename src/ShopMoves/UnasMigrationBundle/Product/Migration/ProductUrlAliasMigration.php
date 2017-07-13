@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ProductUrlAliasMigration extends BatchMigration
 {
-    protected $urlAliasesUri = '/urlAliases/';
+    protected $urlAliasesUri = '/urlAliases';
 
     public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
@@ -30,18 +30,16 @@ class ProductUrlAliasMigration extends BatchMigration
         }
 
         $alias = $this->getUrlAliasToProduct($product);
-        $outerId = $this->getOuterId($alias);
-        $data['id'] = $outerId;
+        $outerId = $this->getOuterId($product->Id);
         $data['urlAlias'] = $alias;
         $data['type'] = 'PRODUCT';
         $data['urlAliasEntity']['id'] = $this->getProductOuterId($product);
 
-        $this->addToBatchArray($this->urlAliasesUri, $outerId, $data);
+        $this->addToBatchArray($this->urlAliasesUri, '', $data);
     }
-
     public function getOuterId($data)
     {
-        return base64_encode($data);
+        return base64_encode('product_url-alias=' . $data);
     }
 
     public function getUrlAliasToProduct($product)

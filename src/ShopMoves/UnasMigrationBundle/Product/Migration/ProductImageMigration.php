@@ -70,9 +70,9 @@ class ProductImageMigration extends BatchMigration
             unset($image);
             return;
         }
-        $fileData['filePath'] = $path;
-        $fileData['type'] = 'image';
-        $fileData['attachment'] = $fileContent;
+//        $fileData['filePath'] = $path;
+//        $fileData['type'] = 'image';
+//        $fileData['attachment'] = $fileContent;
 
         if (isset($image->Type) && $image->Type != 'base') {
             $data['id'] = $outerId;
@@ -80,7 +80,7 @@ class ProductImageMigration extends BatchMigration
             $data['product']['id'] = $this->getProductOuterId($product);
             $this->addToBatchArray($this->productImageUri, $outerId, $data);
         }
-        $this->addToBatchArray($this->productFileUri, '', $fileData);
+//        $this->addToBatchArray($this->productFileUri, '', $fileData);
 
         unset($product);
         unset($image);
