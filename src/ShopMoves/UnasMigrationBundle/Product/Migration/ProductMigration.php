@@ -42,10 +42,14 @@ class ProductMigration extends BatchMigration
         if ($this->isProductDeleted($product)) {
             return;
         }
+        $productStatus = ($product->Statuses->Status == '1' || $product->Statuses->Status == '2' || $product->Statuses->Status == '3') ? '1' : '0';
         $outerId = $this->getProductOuterId($product);
         $data['id'] = $outerId;
         $data['sku'] = $product->Sku;
-        $data['status'] = $product->Statuses->Status->Value;
+        $data['status'] = $productStatus;
+        if ($product->Statuses->Status == '3') {
+            $data['orderable'] = 0;
+        }
         $data['price'] = count($product->Prices->Price) == 1 ? $product->Prices->Price->Net : $this->getProductPrice($product->Prices->Price);
         $data['stock1'] = count($product->Stocks->Stock) == 1 ? $product->Stocks->Stock->Qty : $this->getProductQuantity($product->Stocks->Stock);
         $data['taxClass'] = [
@@ -119,4 +123,5 @@ class ProductMigration extends BatchMigration
 
         return $path;
     }
+
 }

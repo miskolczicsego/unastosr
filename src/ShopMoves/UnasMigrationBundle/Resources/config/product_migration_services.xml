@@ -11,6 +11,7 @@
         <parameter key="shopmoves.unasmigration.product.migration.productdescriptionmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductDescriptionMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.provider.product_data_provider.class">ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider</parameter>
         <parameter key="shopmoves.unasmigration.product.helper.taxhelper.class">ShopMoves\UnasMigrationBundle\Helper\TaxHelper</parameter>
+        <parameter key="shopmoves.unasmigration.product.migration.productoptionmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductOptionMigration</parameter>
 
     </parameters>
     <services>
@@ -54,6 +55,12 @@
         </service>
 
         <service id="product_class_migration" class="%shopmoves.unasmigration.product.migration.productclassmigration.class%">
+            <argument type="service" id="product_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="product_option_migration" class="%shopmoves.unasmigration.product.migration.productoptionmigration.class%">
             <argument type="service" id="product_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>

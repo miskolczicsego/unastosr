@@ -44,12 +44,14 @@ class MigrationManager
 //        $this->container->get('customer_migration')->migrate();
 //        $this->container->get('customer_address_migration')->migrate();
         //TODO: a képletöltő/feltöltő még szar
-        $this->container->get('product_image_migration')->migrate();
+//        $this->container->get('product_image_migration')->migrate();
 //        $this->container->get('product_migration')->migrate();
 //        $this->container->get('product_description_migration')->migrate();
 //        $this->container->get('product_class_migration')->migrate();
 //        $this->container->get('product_special_price_migration')->migrate();
 //        $this->container->get('product_url_alias_migration')->migrate();
+        $this->container->get('product_option_migration')->migrate();
+
 //        $this->container->get('category_migration')->migrate();
 
         $time = microtime(true) - $start;

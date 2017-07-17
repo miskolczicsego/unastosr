@@ -10,6 +10,7 @@ namespace ShopMoves\UnasMigrationBundle\Migration;
 
 
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
+use ShopMoves\UnasMigrationBundle\Api\Response;
 use ShopMoves\UnasMigrationBundle\Product\Migration\ProductImageMigration;
 use ShopMoves\UnasMigrationBundle\Provider\IDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -65,12 +66,7 @@ abstract class BatchMigration
     {
         $datas = $this->dataProvider->getData();
 //        $time = 0;
-        $counter = 1;
-        if ($this instanceof ProductImageMigration) {
-            $batchSize = 1;
-        } else {
-            $batchSize = 200;
-        }
+
         foreach ($datas as $data){
 //            $start = microtime(true);
             $this->process($data);
@@ -80,6 +76,7 @@ abstract class BatchMigration
 //            file_put_contents('time.log', number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL);
 //            file_put_contents('memory.log', number_format(memory_get_peak_usage() / 1000000, 2, '.', ' ') . ' MB' . PHP_EOL);
         }
+//        die;
         $batch = [];
         $chunk = array_chunk($this->batchData['requests'],50, true);
         foreach ($chunk as $batch['requests']) {
@@ -103,6 +100,8 @@ abstract class BatchMigration
 
     public function getUrl()
     {
+
+//        return "http://kiscip.api.shoprenter.hu";
         return "http://miskolczicsego.api.shoprenter.hu";
 
 //        return "http://demo.api.aurora.miskolczicsego";
@@ -128,11 +127,17 @@ abstract class BatchMigration
 
     public function sendBatchData($data)
     {
+        /** @var Response $response */
         $response = $this->apiCall->execute('POST', '/batch',  $data);
 
         $data = $response->getData();
 
-        file_put_contents('responseData.log', $data . PHP_EOL, FILE_APPEND);
+        dump($data);
 //        $this->batchData = [];
+    }
+
+    public function getHungarianLanguageResourceId()
+    {
+        return 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ==';
     }
 }

@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ProductDataProvider extends DataProvider
 {
-    protected $fileName = 'kiscipoproduct';
+    protected $fileName = '1500283059673product';
 
     protected $extension = 'json';
 
