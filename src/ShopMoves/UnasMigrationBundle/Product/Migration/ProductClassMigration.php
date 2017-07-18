@@ -28,21 +28,17 @@ class ProductClassMigration extends BatchMigration
     }
     public function process($product)
     {
-        if ($this->isProductDeleted($product) || !isset($product->Datas)) {
+        if ($this->isProductDeleted($product) || !isset($product->Params) || empty($product->Params)) {
             return;
         }
 
-        $classes = $product->Datas->Data;
+        $classes = $product->Params->Param;
+
+        dump($classes);die;
 
         if (is_array($classes)) {
             foreach ($classes as $class) {
-                if(isset($class) && $class->Name === 'Típus' && !array_key_exists($class->Value, $this->productClasses)) {
-                    $this->productClasses[$class->Value] = true;
-                    $outerId = $this->getOuterId($class);
-                    $data['id'] = $outerId;
-                    $data['name'] = $class->Value;
-                    $this->addToBatchArray($this->productClassUri, $outerId, $data);
-                }
+
             }
         } else {
             if($classes->Name === 'Típus' && !array_key_exists($classes->Value, $this->productClasses)) {
@@ -59,5 +55,16 @@ class ProductClassMigration extends BatchMigration
     public function getOuterId($data)
     {
         return base64_encode('product_class-Product=' . $data->Value);
+    }
+
+    public function buildClassBatch()
+    {
+        if(isset($class) && $class->Name === 'Típus' && !array_key_exists($class->Value, $this->productClasses)) {
+            $this->productClasses[$class->Value] = true;
+            $outerId = $this->getOuterId($class);
+            $data['id'] = $outerId;
+            $data['name'] = $class->Value;
+            $this->addToBatchArray($this->productClassUri, $outerId, $data);
+        }
     }
 }
