@@ -66,7 +66,7 @@ abstract class BatchMigration
     {
         $datas = $this->dataProvider->getData();
 //        $time = 0;
-
+//dump($datas);die;
         foreach ($datas as $data){
 //            $start = microtime(true);
             $this->process($data);

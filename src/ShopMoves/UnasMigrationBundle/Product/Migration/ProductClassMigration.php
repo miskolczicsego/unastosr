@@ -34,36 +34,28 @@ class ProductClassMigration extends BatchMigration
 
         $classes = $product->Params->Param;
 
-        dump($classes);die;
-
         if (is_array($classes)) {
             foreach ($classes as $class) {
-
+                $this->buildClassBatch($class);
             }
         } else {
-            if($classes->Name === 'Típus' && !array_key_exists($classes->Value, $this->productClasses)) {
-                $this->productClasses[$classes->Value] = true;
-                $outerId = $this->getOuterId($classes);
-                $data['id'] = $outerId;
-                $data['name'] = $classes->Value;
-                $this->addToBatchArray($this->productClassUri, $outerId, $data);
-            }
+            $this->buildClassBatch($classes);
         }
-
     }
 
-    public function getOuterId($data)
+    public function getOuterId($class)
     {
-        return base64_encode('product_class-Product=' . $data->Value);
+        return base64_encode('product-Product-Class=' . $class->Id);
     }
 
-    public function buildClassBatch()
+    //TODO: szöveges értékeke ne statikusan legyeek itt (translation inkább)
+    public function buildClassBatch($class)
     {
-        if(isset($class) && $class->Name === 'Típus' && !array_key_exists($class->Value, $this->productClasses)) {
-            $this->productClasses[$class->Value] = true;
+        if(!array_key_exists($class->Name, $this->productClasses)) {
+            $this->productClasses[$class->Name] = true;
             $outerId = $this->getOuterId($class);
             $data['id'] = $outerId;
-            $data['name'] = $class->Value;
+            $data['name'] = 'Változó ' . $class->Name . ' szerint';
             $this->addToBatchArray($this->productClassUri, $outerId, $data);
         }
     }

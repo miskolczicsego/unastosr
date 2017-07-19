@@ -11,12 +11,14 @@
         <parameter key="shopmoves.unasmigration.migration.migration_manager.class">ShopMoves\UnasMigrationBundle\Migration\MigrationManager</parameter>
         <parameter key="shopmoves.unasmigration.utils.csvtoarray.class">ShopMoves\UnasMigrationBundle\Utils\CsvToArray</parameter>
         <parameter key="shopmoves.unasmigration.utils.imagedownloader.class">ShopMoves\UnasMigrationBundle\Utils\ImageDownloader</parameter>
+        <parameter key="shopmoves.unasmigration.utils.slugifier.class">ShopMoves\UnasMigrationBundle\Utils\Slugifier</parameter>
     </parameters>
     <services>
 
         <service id="curl" class="%shopmoves.unasmigration.curl.curl.class%"/>
 
         <service id="csv_to_array" class="%shopmoves.unasmigration.utils.csvtoarray.class%"/>
+        <service id="slugifier" class="%shopmoves.unasmigration.utils.slugifier.class%"/>
 
         <service id="image_downloader" class="%shopmoves.unasmigration.utils.imagedownloader.class%"/>
 

@@ -42,12 +42,13 @@ class ProductMigration extends BatchMigration
         if ($this->isProductDeleted($product)) {
             return;
         }
-        $productStatus = ($product->Statuses->Status == '1' || $product->Statuses->Status == '2' || $product->Statuses->Status == '3') ? '1' : '0';
+        $unasStatus = $product->Statuses->Status->Value;
+        $srStatus = ($unasStatus == '1' || $unasStatus == '2' || $unasStatus == '3') ? '1' : '0';
         $outerId = $this->getProductOuterId($product);
         $data['id'] = $outerId;
         $data['sku'] = $product->Sku;
-        $data['status'] = $productStatus;
-        if ($product->Statuses->Status == '3') {
+        $data['status'] = $srStatus;
+        if ($unasStatus == '3') {
             $data['orderable'] = 0;
         }
         $data['price'] = count($product->Prices->Price) == 1 ? $product->Prices->Price->Net : $this->getProductPrice($product->Prices->Price);
@@ -98,13 +99,11 @@ class ProductMigration extends BatchMigration
     public function getProductClassId($product)
     {
 //        dump($product->Datas);die;
-        if (isset($product->Datas) && is_array($product->Datas->Data)) {
-            $class = array_pop($product->Datas->Data);
-            return base64_encode('product_class-Product=' . $class->Value);
-        } else {
-            if (isset($product->Datas) && $product->Datas->Data->Name === 'Típus') {
-                return base64_encode('product_class-Product=' . $product->Datas->Data->Value);
-            }
+        if (isset($product->Params) && is_array($product->Params->Param)) {
+            $class = array_pop($product->Params->Param);
+            return base64_encode('product-Product-Class=' . $class->Id);
+        } elseif (isset($product->Params) && !is_array($product->Params->Param)) {
+                return base64_encode('product-Product-Class=' . $product->Params->Param->Id);
         }
         return '';
     }

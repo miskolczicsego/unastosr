@@ -25,5 +25,6 @@ class ShopMovesUnasMigrationExtension extends Extension
         $loader->load('customer_address_migration_services.xml');
         $loader->load('product_migration_services.xml');
         $loader->load('category_migration_service.xml');
+        $loader->load('attribute_migration_services.xml');
     }
 }

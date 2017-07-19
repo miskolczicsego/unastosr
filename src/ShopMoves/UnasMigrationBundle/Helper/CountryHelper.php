@@ -17,6 +17,7 @@ class CountryHelper
     protected $apicall;
 
     protected $srCountryDatas;
+
     function __construct(ApiCall $apicall)
     {
         $this->apicall = $apicall;

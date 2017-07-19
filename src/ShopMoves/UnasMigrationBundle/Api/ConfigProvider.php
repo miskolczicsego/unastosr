@@ -26,15 +26,15 @@ class ConfigProvider
     public function setConfig()
     {
 
-//        //ÉLES
-//        $this->username = 'miskolczicsego';
-//        $this->apiKey = '3ee4cecbc8e681d2a3717edbbbd7500c';
-//        $this->url = 'http://miskolczicsego.api.shoprenter.hu';
+        //ÉLES
+        $this->username = 'miskolczicsego';
+        $this->apiKey = '3ee4cecbc8e681d2a3717edbbbd7500c';
+        $this->url = 'http://miskolczicsego.api.shoprenter.hu';
 
-        //Kiscipo
-        $this->username = 'kiscipo';
-        $this->apiKey = 'da79558ab84e46a7c6c84da5177ea501';
-        $this->url = 'http://kiscip.api.shoprenter.hu';
+//        //Kiscipo
+//        $this->username = 'kiscipo';
+//        $this->apiKey = 'da79558ab84e46a7c6c84da5177ea501';
+//        $this->url = 'http://kiscip.api.shoprenter.hu';
 
         //DEMO
 //        $this->username = 'demo';
