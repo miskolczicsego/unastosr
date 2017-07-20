@@ -28,6 +28,8 @@ class ListAttributeDataProvider extends DataProvider
 
     protected $productClassIds = [];
 
+    protected $attributeValueToProduct = [];
+
     function __construct($container)
     {
         parent::__construct($container);
@@ -49,10 +51,12 @@ class ListAttributeDataProvider extends DataProvider
                     foreach ($params as $param) {
                         $this->setProductClassId($param);
                         $this->gatherListAttributeDatas($param);
+                        $this->gatherAttributeValuesToProduct($product, $param);
                     }
                 } else {
                     $this->setProductClassId($params);
                     $this->gatherListAttributeDatas($params);
+                    $this->gatherAttributeValuesToProduct($product, $params);
                 }
             }
 
@@ -61,11 +65,14 @@ class ListAttributeDataProvider extends DataProvider
                 if(is_array($datas)) {
                     foreach ($datas as $data) {
                         $this->gatherListAttributeDatas($data);
+                        $this->gatherAttributeValuesToProduct($product, $data);
                     }
                 } else {
                     $this->gatherListAttributeDatas($datas);
+                    $this->gatherAttributeValuesToProduct($product, $datas);
                 }
             }
+
         }
         return $this->listAttributeDatas;
 
@@ -99,8 +106,30 @@ class ListAttributeDataProvider extends DataProvider
         }
     }
 
+    public function getAttributeValueToProductBySku($sku) {
+        return isset($this->attributeValueToProduct[$sku]) ? $this->attributeValueToProduct[$sku] : '';
+    }
+
     public function getProductClassIds()
     {
         return $this->productClassIds;
+    }
+
+    public function gatherAttributeValuesToProduct($product, $data)
+    {
+        $this->attributeValueToProduct[$product->Sku][] = [
+            'listAttributeId' => $this->getListAttributeValueOuterId($data->Value)
+        ];
+
+    }
+
+    public function getListAttributeValueOuterId($data)
+    {
+        return base64_encode('product_listAttributeValue=' . $data);
+    }
+
+    public function getProductOuterId($product)
+    {
+        return base64_encode('product_id-Product=' . $product->Sku);
     }
 }

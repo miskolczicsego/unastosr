@@ -10,6 +10,7 @@ namespace ShopMoves\UnasMigrationBundle\Product\Migration;
 
 
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
+use ShopMoves\UnasMigrationBundle\Attributes\Provider\ListAttributeDataProvider;
 use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
 use ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -19,7 +20,14 @@ class ProductMigration extends BatchMigration
 
     protected $productUri = '/products/';
 
+    protected $productListAttributeValueRelationsUri = '/productListAttributeValueRelations';
+
     protected $mainImageToProduct;
+
+    /**
+     * @var ListAttributeDataProvider $listAttributeDataProvider
+     */
+    protected $listAttributeDataProvider;
 
     /**
      * ProductMigration constructor.
@@ -27,8 +35,9 @@ class ProductMigration extends BatchMigration
      * @param ApiCall $apiCall
      * @param ContainerInterface $container
      */
-    public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
+    public function __construct(ProductDataProvider $dataProvider, ListAttributeDataProvider $listAttributeDataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
+        $this->listAttributeDataProvider = $listAttributeDataProvider;
         parent::__construct($dataProvider, $apiCall, $container);
     }
 
@@ -42,6 +51,8 @@ class ProductMigration extends BatchMigration
         if ($this->isProductDeleted($product)) {
             return;
         }
+
+        $values = $this->listAttributeDataProvider->getAttributeValueToProductBySku($product->Sku);
         $unasStatus = $product->Statuses->Status->Value;
         $srStatus = ($unasStatus == '1' || $unasStatus == '2' || $unasStatus == '3') ? '1' : '0';
         $outerId = $this->getProductOuterId($product);
@@ -59,8 +70,18 @@ class ProductMigration extends BatchMigration
         $data['mainPicture'] = $this->getMainPictureToProduct($product);
         $data['parentProduct']['id'] = $this->getParentProduct($product);
         $data['productClass']['id'] = $this->getProductClassId($product);
-
         $this->addToBatchArray($this->productUri, $outerId, $data);
+
+        if(!empty($values)) {
+            foreach ($values as $value) {
+                //            dump($value);die;
+                $listValueToProduct['product']['id'] = $outerId;
+                $listValueToProduct['listAttributeValue']['id'] = $value['listAttributeId'];
+                $this->addToBatchArray($this->productListAttributeValueRelationsUri, '' , $listValueToProduct);
+            }
+        }
+
+
     }
 
     public function getOuterId($product)

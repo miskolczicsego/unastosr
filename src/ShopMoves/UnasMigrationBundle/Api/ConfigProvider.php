@@ -26,9 +26,9 @@ class ConfigProvider
     public function setConfig()
     {
 
-        //ÉLES
-        $this->username = 'miskolczicsego';
-        $this->apiKey = '3ee4cecbc8e681d2a3717edbbbd7500c';
+//        //ÉLES
+        $this->username = 'test';
+        $this->apiKey = '2dcd07ef6f3515a5f3a00daba7967fb6';
         $this->url = 'http://miskolczicsego.api.shoprenter.hu';
 
 //        //Kiscipo
@@ -38,7 +38,7 @@ class ConfigProvider
 
         //DEMO
 //        $this->username = 'demo';
-//        $this->apiKey = 'a6e5848caf51cbfdd677411ac1f6e39c';
+//        $this->apiKey = '9c6d56c0bd813b2f04b236f03e450f67';
 //        $this->url = 'http://demo.api.aurora.miskolczicsego';
     }
     /**

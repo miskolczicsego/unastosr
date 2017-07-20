@@ -21,6 +21,7 @@ class ListAttributeMigration extends BatchMigration
     protected $listAttributeValuesUri = '/listAttributeValues/';
     protected $listAttributeValueDescriptionsUri = '/listAttributeValueDescriptions';
     protected $productClassAttributeRelationUri = '/productClassAttributeRelations';
+//    protected $productToListAttributeValueRelationsUri = '/productListAttributeValueRelations';
 
     public function __construct(ListAttributeDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {

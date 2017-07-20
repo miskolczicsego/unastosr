@@ -65,23 +65,27 @@ abstract class BatchMigration
     public function migrate()
     {
         $datas = $this->dataProvider->getData();
-//        $time = 0;
+        $time = 0;
 //dump($datas);die;
+        file_put_contents('status.log', 'Start of process ' . (get_class($this). PHP_EOL), FILE_APPEND);
+            $start = microtime(true);
         foreach ($datas as $data){
-//            $start = microtime(true);
             $this->process($data);
-
-
-//            $time += (microtime(true) - $start);
-//            file_put_contents('time.log', number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL);
-//            file_put_contents('memory.log', number_format(memory_get_peak_usage() / 1000000, 2, '.', ' ') . ' MB' . PHP_EOL);
+            $time += (microtime(true) - $start);
         }
+        file_put_contents('status.log', 'End of process ' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL) , FILE_APPEND);
+
 //        die;
+        file_put_contents('api_send_status.log', 'Start of send to api ' . (get_class($this). PHP_EOL), FILE_APPEND);
         $batch = [];
-        $chunk = array_chunk($this->batchData['requests'],50, true);
+        $chunk = array_chunk($this->batchData['requests'],10, true);
+        $time = 0;
+        $start = microtime(true);
         foreach ($chunk as $batch['requests']) {
             $this->sendBatchData($batch);
+            $time += (microtime(true) - $start);
         }
+        file_put_contents('api_send_status.log', 'End of send to api' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL), FILE_APPEND);
 
     }
 
