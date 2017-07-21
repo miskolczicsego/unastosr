@@ -7,6 +7,7 @@
         <parameter key="shopmoves.unasmigration.customer.migration.customerGroupmigration.class">ShopMoves\UnasMigrationBundle\Customer\Migration\CustomerGroupMigration</parameter>
         <parameter key="shopmoves.unasmigration.customer.provider.customerdataprovider.class">ShopMoves\UnasMigrationBundle\Customer\Provider\CustomerDataProvider</parameter>
         <parameter key="shopmoves.unasmigration.helper.namehelper.class">ShopMoves\UnasMigrationBundle\Helper\NameHelper</parameter>
+        <parameter key="shopmoves.unasmigration.helper.customergrouphelper.class">ShopMoves\UnasMigrationBundle\Helper\CustomerGroupHelper</parameter>
 
     </parameters>
     <services>
@@ -18,15 +19,18 @@
             <argument type="service" id="customer_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>
+            <argument type="service" id="customer_group_helper"/>
         </service>
 
         <service id="customer_group_migration" class="%shopmoves.unasmigration.customer.migration.customergroupmigration.class%">
             <argument type="service" id="customer_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>
+
         </service>
 
-        <service id="name_helper" class="%shopmoves.unasmigration.helper.namehelper.class%" />
+        <service id="customer_name_helper" class="%shopmoves.unasmigration.helper.namehelper.class%" />
+        <service id="customer_group_helper" class="%shopmoves.unasmigration.helper.customergrouphelper.class%" />
 
     </services>
 </container>

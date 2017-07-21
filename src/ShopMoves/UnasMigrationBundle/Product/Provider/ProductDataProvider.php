@@ -24,7 +24,7 @@ class ProductDataProvider extends DataProvider
         parent::__construct($container);
     }
 
-    public function _getData()
+    public function getData()
     {
         $fileUrl = $this->getFileUrl($this->fileName, $this->extension);
         $content = file_get_contents($fileUrl);

@@ -18,9 +18,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ProductMigration extends BatchMigration
 {
 
-    protected $productUri = '/products/';
+    protected $productUri = 'products';
 
-    protected $productListAttributeValueRelationsUri = '/productListAttributeValueRelations';
+    protected $productListAttributeValueRelationsUri = 'productListAttributeValueRelations';
 
     protected $mainImageToProduct;
 
@@ -74,7 +74,6 @@ class ProductMigration extends BatchMigration
 
         if(!empty($values)) {
             foreach ($values as $value) {
-                //            dump($value);die;
                 $listValueToProduct['product']['id'] = $outerId;
                 $listValueToProduct['listAttributeValue']['id'] = $value['listAttributeId'];
                 $this->addToBatchArray($this->productListAttributeValueRelationsUri, '' , $listValueToProduct);

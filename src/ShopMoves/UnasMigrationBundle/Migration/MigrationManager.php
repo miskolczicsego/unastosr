@@ -1,6 +1,5 @@
 <?php
 namespace ShopMoves\UnasMigrationBundle\Migration;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -29,27 +28,34 @@ class MigrationManager
 
     public function start()
     {
+        if(file_exists('status.log')) {
+
+            unlink('status.log');
+        }
+        if(file_exists('api_send_status.log')) {
+
+            unlink('api_send_status.log');
+        }
         $start = microtime(true);
 //        $currentMigrationId = key($this->migrations);
         $this->container->get('shopmoves.unasmigration.api.config_provider')->setConfig();
 
 
-        $this->container->get('customer_group_migration')->migrate();
-        $this->container->get('customer_migration')->migrate();
-        $this->container->get('customer_address_migration')->migrate();
+//        $this->container->get('customer_group_migration')->migrate();
+//        $this->container->get('customer_migration')->migrate();
+//        $this->container->get('customer_address_migration')->migrate();
         //TODO: a képletöltő/feltöltő még szar
 //        $this->container->get('product_image_migration')->migrate();
-        $this->container->get('product_class_migration')->migrate();
         $this->container->get('list_attribute_migration')->migrate();
+        $this->container->get('product_class_migration')->migrate();
         $this->container->get('product_migration')->migrate();
-        $this->container->get('product_description_migration')->migrate();
-        $this->container->get('product_special_price_migration')->migrate();
-        $this->container->get('product_url_alias_migration')->migrate();
-        $this->container->get('product_option_migration')->migrate();
-        $this->container->get('category_migration')->migrate();
-
+//        $this->container->get('product_description_migration')->migrate();
+//        $this->container->get('product_special_price_migration')->migrate();
+//        $this->container->get('product_url_alias_migration')->migrate();
+//        $this->container->get('product_option_migration')->migrate();
+//        $this->container->get('category_migration')->migrate();
         $time = microtime(true) - $start;
-        dump(number_format($time, 2, '.', ' ') . ' Sec');
+        file_put_contents('status.log', 'End of migration ' . PHP_EOL . 'Time needed: ' . number_format($time, 2, '.', ' ') . ' Sec' .PHP_EOL , FILE_APPEND);
         dump( number_format(memory_get_peak_usage() / 1000000, 2, '.', ' ') . ' MB');
 
 

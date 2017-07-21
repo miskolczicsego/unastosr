@@ -9,6 +9,7 @@
         <parameter key="shopmoves.unasmigration.config.config.class">ShopMoves\UnasMigrationBundle\Config\Config</parameter>
         <parameter key="shopmoves.unasmigration.provider.dataprovider.class">ShopMoves\UnasMigrationBundle\Provider\DataProvider</parameter>
         <parameter key="shopmoves.unasmigration.migration.migration_manager.class">ShopMoves\UnasMigrationBundle\Migration\MigrationManager</parameter>
+        <parameter key="shopmoves.unasmigration.helper.languagehelper.class">ShopMoves\UnasMigrationBundle\Helper\LanguageHelper</parameter>
         <parameter key="shopmoves.unasmigration.utils.csvtoarray.class">ShopMoves\UnasMigrationBundle\Utils\CsvToArray</parameter>
         <parameter key="shopmoves.unasmigration.utils.imagedownloader.class">ShopMoves\UnasMigrationBundle\Utils\ImageDownloader</parameter>
         <parameter key="shopmoves.unasmigration.utils.slugifier.class">ShopMoves\UnasMigrationBundle\Utils\Slugifier</parameter>
@@ -29,6 +30,8 @@
         </service>
 
         <service id="shopmoves.unasmigration.api.config_provider" class="%shopmoves.unasmigration.api.config_provider.class%"/>
+
+        <service id="language_helper" class="%shopmoves.unasmigration.helper.languagehelper.class%"/>
 
 
         <service id="shopmoves.unasmigration.migration.migration_manager" class="%shopmoves.unasmigration.migration.migration_manager.class%">

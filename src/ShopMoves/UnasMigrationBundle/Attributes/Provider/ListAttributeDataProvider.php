@@ -35,7 +35,7 @@ class ListAttributeDataProvider extends DataProvider
         parent::__construct($container);
     }
 
-    public function _getData()
+    public function getData()
     {
         $this->slugifier = $this->container->get('slugifier');
         $fileUrl = $this->getFileUrl($this->fileName, $this->extension);
@@ -88,7 +88,7 @@ class ListAttributeDataProvider extends DataProvider
         if(!array_key_exists($param->Name, $this->listAttributeDatas)) {
             $this->listAttributeDatas[$param->Name] = [
                 'type' => 'LIST',
-                'slug' => $this->slugifier->transliterate($param->Name, '_'),
+                'slug' => Transliterator::transliterate($param->Name, '_'),
                 'name' => $param->Name,
                 'values' => [$param->Value => 1]
             ];

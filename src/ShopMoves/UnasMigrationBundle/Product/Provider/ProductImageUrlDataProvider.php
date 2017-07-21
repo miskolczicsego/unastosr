@@ -14,7 +14,7 @@ use ShopMoves\UnasMigrationBundle\Provider\DataProvider;
 class ProductImageUrlDataProvider extends DataProvider
 {
 
-    public function _getData($products)
+    public function getData($products)
     {
 
     }

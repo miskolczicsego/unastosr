@@ -16,11 +16,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class CategoryMigration extends BatchMigration
 {
 
-    protected $categoryUri = '/categories/';
+    protected $categoryUri = 'categories';
 
-    protected $categoryDescriptionUri = '/categoryDescriptions/';
+    protected $categoryDescriptionUri = 'categoryDescriptions';
 
-    protected $productCategoryRelationsUri = '/productCategoryRelations';
+    protected $productCategoryRelationsUri = 'productCategoryRelations';
 
     protected $hungarianLanguageId = 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ==';
 

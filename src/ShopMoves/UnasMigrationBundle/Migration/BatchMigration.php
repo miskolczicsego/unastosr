@@ -48,8 +48,6 @@ abstract class BatchMigration
 
     abstract public function process($data);
 
-    abstract public function getOuterId($data);
-
     public function __construct(IDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
         $this->container = $container;
@@ -64,24 +62,25 @@ abstract class BatchMigration
 
     public function migrate()
     {
+        $chunkSize = 50;
         $datas = $this->dataProvider->getData();
         $time = 0;
 //dump($datas);die;
-        file_put_contents('status.log', 'Start of process ' . (get_class($this). PHP_EOL), FILE_APPEND);
-            $start = microtime(true);
+//        file_put_contents('status.log', 'Start of process ' . (get_class($this). PHP_EOL), FILE_APPEND);
         foreach ($datas as $data){
+            $start = microtime(true);
             $this->process($data);
             $time += (microtime(true) - $start);
         }
         file_put_contents('status.log', 'End of process ' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL) , FILE_APPEND);
 
 //        die;
-        file_put_contents('api_send_status.log', 'Start of send to api ' . (get_class($this). PHP_EOL), FILE_APPEND);
+//        file_put_contents('api_send_status.log', 'Start of send to api ' . (get_class($this). PHP_EOL), FILE_APPEND);
         $batch = [];
-        $chunk = array_chunk($this->batchData['requests'],10, true);
+        $chunk = array_chunk($this->batchData['requests'],$chunkSize, true);
         $time = 0;
-        $start = microtime(true);
         foreach ($chunk as $batch['requests']) {
+            $start = microtime(true);
             $this->sendBatchData($batch);
             $time += (microtime(true) - $start);
         }
@@ -115,7 +114,7 @@ abstract class BatchMigration
     {
         $this->batchData['requests'][] = [
             'method' => 'POST',
-            'uri' => $this->getUrl() . $resourceUri . (!empty($id) ? $id : ''),
+            'uri' => $this->getUrl() . '/' .$resourceUri  . (!empty($id) ? '/' . $id : ''),
             'data' => $data
         ];
         unset($data);

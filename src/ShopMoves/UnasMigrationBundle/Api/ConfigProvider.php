@@ -27,8 +27,8 @@ class ConfigProvider
     {
 
 //        //ÉLES
-        $this->username = 'test';
-        $this->apiKey = '2dcd07ef6f3515a5f3a00daba7967fb6';
+        $this->username = 'kiscipo';
+        $this->apiKey = 'da79558ab84e46a7c6c84da5177ea501';
         $this->url = 'http://miskolczicsego.api.shoprenter.hu';
 
 //        //Kiscipo

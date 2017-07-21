@@ -17,7 +17,7 @@ class CategoryDataProvider extends DataProvider
 
     protected $extension = 'json';
 
-    public function _getData()
+    public function getData()
     {
         $fileUrl = $this->getFileUrl($this->fileName, $this->extension);
         $content = file_get_contents($fileUrl);

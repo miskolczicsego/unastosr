@@ -9,7 +9,9 @@
 namespace ShopMoves\UnasMigrationBundle\Product\Migration;
 
 
+use Behat\Transliterator\Transliterator;
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
+use ShopMoves\UnasMigrationBundle\Attributes\Migration\ListAttributeMigration;
 use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
 use ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -17,13 +19,21 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ProductClassMigration extends BatchMigration
 {
 
-    protected $productClassUri = '/productClasses/';
+    protected $productClassUri = 'productClasses';
+
+    protected $productClassAttributeRelationUri = 'productClassAttributeRelations';
 
     protected $productClasses = [];
 
+    protected $listAttributeMigration;
 
-    public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
-    {
+    public function __construct(
+        ProductDataProvider $dataProvider,
+        ListAttributeMigration $listAttributeMigration,
+        ApiCall $apiCall,
+        ContainerInterface $container
+    ) {
+        $this->listAttributeMigration = $listAttributeMigration;
         parent::__construct($dataProvider, $apiCall, $container);
     }
     public function process($product)
@@ -48,7 +58,6 @@ class ProductClassMigration extends BatchMigration
         return base64_encode('product-Product-Class=' . $class->Id);
     }
 
-    //TODO: szöveges értékeke ne statikusan legyeek itt (translation inkább)
     public function buildClassBatch($class)
     {
         if(!array_key_exists($class->Name, $this->productClasses)) {
@@ -56,7 +65,18 @@ class ProductClassMigration extends BatchMigration
             $outerId = $this->getOuterId($class);
             $data['id'] = $outerId;
             $data['name'] = 'Változó ' . $class->Name . ' szerint';
+            $data['firstVariantSelectType'] = 'LIST';
+            $data['firstVariantParameter']['id'] = base64_encode('product_listAttribute=' . Transliterator::transliterate($class->Name, '_'));
             $this->addToBatchArray($this->productClassUri, $outerId, $data);
+
+            $attributeOuterIds = $this->listAttributeMigration->getAttributeIds();
+//            dump($attributeOuterIds);die;
+            foreach ($attributeOuterIds as $attributeId) {
+                $productClassToAttribute['attribute']['id'] = $attributeId;
+                $productClassToAttribute['productClass']['id'] = $outerId;
+
+                $this->addToBatchArray($this->productClassAttributeRelationUri, '', $productClassToAttribute);
+            }
         }
     }
 }

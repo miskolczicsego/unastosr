@@ -17,43 +17,42 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class AddressMigration extends BatchMigration
 {
 
-    protected $addressUri = '/addresses/';
+    protected $addressUri = 'addresses';
 
-    protected $countries;
-
-    public function __construct(AddressDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
+    public function __construct(
+        AddressDataProvider $dataProvider,
+        ApiCall $apiCall,
+        ContainerInterface $container)
     {
         parent::__construct($dataProvider, $apiCall, $container);
-        $this->countries = $this->container->get('country_helper')->getSRCountries();
     }
 
     public function process($addresses)
     {
+        $countryResolver = $this->container->get('country_resolver');
+        $countryHelper = $this->container->get('country_helper');
+        $countries = $countryHelper->getSRCountries();
         foreach ($addresses as $address) {
 
-            $nameHelper = $this->container->get('name_helper');
+            $nameHelper = $this->container->get('customer_name_helper');
+
 
             $shippingName = $nameHelper->separate($address['address']->Shipping->Name);
             $invoiceName = $nameHelper->separate($address['address']->Invoice->Name);
             $shippingOuterId = $this->getShippingOuterId($address);
             $invoiceOuterId = $this->getInvoiceOuterId($address);
-
+            $customerOuterId = $this->getCustomerOuterId($address['customerId']);
             //TODO: TaxNumbert bevinni
             if ($this->isAddressesEqual($address)) {
+
                 $data['id'] = $shippingOuterId;
                 $data['firstname'] = $shippingName['firstname'];
                 $data['lastname'] = $shippingName['lastname'];
                 $data['address1'] = $address['address']->Shipping->Street;
                 $data['postcode'] = $address['address']->Shipping->ZIP;
                 $data['city'] = $address['address']->Shipping->City;
-                $data['country']['id'] =
-                    array_key_exists($address['address']->Shipping->Country, $this->countries)
-                    ? base64_encode(
-                        'country-country_id='.$this->countries[$address['address']->Shipping->Country]
-                    )
-                    : base64_encode('country-country_id='.$this->countries['Magyarország']);
-
-                $data['customer']['id'] = base64_encode($address['customerId']);
+                $data['country']['id'] = $countryResolver->resolve($address['address']->Shipping->Country, $countries);
+                $data['customer']['id'] = $customerOuterId;
 
                $this->addToBatchArray($this->addressUri, $shippingOuterId, $data);
 
@@ -65,10 +64,10 @@ class AddressMigration extends BatchMigration
                 $dataShipping['address1'] = $address['address']->Shipping->Street;
                 $dataShipping['postcode'] = $address['address']->Shipping->ZIP;
                 $dataShipping['city'] = $address['address']->Shipping->City;
-                $dataShipping['country']['id'] =  array_key_exists($address['address']->Shipping->Country, $this->countries) ?
-                    base64_encode('country-country_id='.$this->countries[$address['address']->Shipping->Country])
-                    : base64_encode('country-country_id='.$this->countries['Magyarország']);
-                $dataShipping['customer']['id'] = base64_encode($address['customerId']);
+                $dataShipping['country']['id'] = $countryResolver->resolve($address['address']->Shipping->Country, $countries);
+                $dataShipping['customer']['id'] = $customerOuterId;
+
+                $this->addToBatchArray($this->addressUri, $shippingOuterId, $dataShipping);
 
                 //INVOICE
                 $dataInvoice['id'] = $invoiceOuterId;
@@ -77,12 +76,9 @@ class AddressMigration extends BatchMigration
                 $dataInvoice['address1'] = $address['address']->Invoice->Street;
                 $dataInvoice['postcode'] = $address['address']->Invoice->ZIP;
                 $dataInvoice['city'] = $address['address']->Invoice->City;
-                $dataInvoice['country']['id'] =  array_key_exists($address['address']->Invoice->Country, $this->countries) ?
-                    base64_encode('country-country_id='.$this->countries[$address['address']->Invoice->Country])
-                    : base64_encode('country-country_id='.$this->countries['Magyarország']);
-                $dataInvoice['customer']['id'] = base64_encode($address['customerId']);
+                $dataInvoice['country']['id'] = $countryResolver->resolve($address['address']->Invoice->Country, $countries);
+                $dataInvoice['customer']['id'] = $customerOuterId;
 
-                $this->addToBatchArray($this->addressUri, $shippingOuterId, $dataShipping);
                 $this->addToBatchArray($this->addressUri, $invoiceOuterId, $dataInvoice);
             }
         }
@@ -102,7 +98,6 @@ class AddressMigration extends BatchMigration
         ) {
             return false;
         }
-
         return true;
     }
 
@@ -128,8 +123,8 @@ class AddressMigration extends BatchMigration
         );
     }
 
-    public function getOuterId($data)
+    public function getCustomerOuterId($data)
     {
-        // TODO: Implement getOuterId() method.
+        return base64_encode('customer-customer_id=' . $data);
     }
 }

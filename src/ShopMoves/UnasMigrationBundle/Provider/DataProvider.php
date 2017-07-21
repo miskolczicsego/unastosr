@@ -19,25 +19,14 @@ abstract class DataProvider implements IDataProvider
 
     protected $container;
 
-    /**
-     * @var CsvToArray $csvToArray
-     */
-    protected $csvToArray;
 
     function __construct($container)
     {
         $this->container = $container;
-        $this->csvToArray = $this->container->get('csv_to_array');
     }
 
-    abstract public function _getData();
+    abstract public function getData();
 
-    public function getData()
-    {
-        $data = $this->_getData();
-
-        return $data;
-    }
 
     public function getCacheDir()
     {

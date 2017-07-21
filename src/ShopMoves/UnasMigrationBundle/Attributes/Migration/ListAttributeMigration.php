@@ -11,20 +11,34 @@ namespace ShopMoves\UnasMigrationBundle\Attributes\Migration;
 
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
 use ShopMoves\UnasMigrationBundle\Attributes\Provider\ListAttributeDataProvider;
+use ShopMoves\UnasMigrationBundle\Helper\LanguageHelper;
 use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ListAttributeMigration extends BatchMigration
 {
-    protected $listAttributesUri = '/listAttributes/';
-    protected $attributeDescriptionsUri = '/attributeDescriptions';
-    protected $listAttributeValuesUri = '/listAttributeValues/';
-    protected $listAttributeValueDescriptionsUri = '/listAttributeValueDescriptions';
-    protected $productClassAttributeRelationUri = '/productClassAttributeRelations';
-//    protected $productToListAttributeValueRelationsUri = '/productListAttributeValueRelations';
+    protected $listAttributesUri = 'listAttributes';
+    protected $attributeDescriptionsUri = 'attributeDescriptions';
+    protected $listAttributeValuesUri = 'listAttributeValues';
+    protected $listAttributeValueDescriptionsUri = 'listAttributeValueDescriptions';
+    protected $attributeHrefs = [];
 
-    public function __construct(ListAttributeDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
-    {
+    /**
+     * @var LanguageHelper $languageHelper
+     */
+    protected $languageHelper;
+
+
+    protected $hungarianLanguageId;
+
+
+    public function __construct(
+        ListAttributeDataProvider $dataProvider,
+        ApiCall $apiCall,
+        ContainerInterface $container
+    ) {
+        $this->languageHelper = $container->get('language_helper');
+        $this->hungarianLanguageId = $this->languageHelper->getLanguageByKey('HU');
         parent::__construct($dataProvider, $apiCall, $container);
     }
 
@@ -33,41 +47,38 @@ class ListAttributeMigration extends BatchMigration
         $listAttributeOuterId = $this->getOuterId($listAttribute['slug']);
 
         $listAttributeData['id'] = $listAttributeOuterId;
+
+        $this->collectListAttributeIds($listAttributeOuterId);
+
         $listAttributeData['type'] = $listAttribute['type'];
         $listAttributeData['name'] = $listAttribute['slug'];
         $listAttributeData['priority'] = 'NORMAL';
         $listAttributeData['presentation'] = 'TEXT';
 
+        $attributeDescriptionOuterId = $this->getAttributeDescriptionOuterId($listAttribute['name']);
+        $attributeDescriptionData['id'] = $attributeDescriptionOuterId;
         $attributeDescriptionData['name'] = $listAttribute['name'];
-        $attributeDescriptionData['language']['id'] = 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ==';
+        $attributeDescriptionData['language']['id'] = $this->hungarianLanguageId;
         $attributeDescriptionData['attribute']['id'] = $listAttributeOuterId;
 
-        $classids = $this->dataProvider->getProductClassIds();
-
         $this->addToBatchArray($this->listAttributesUri, $listAttributeOuterId, $listAttributeData);
-        $this->addToBatchArray($this->attributeDescriptionsUri, '', $attributeDescriptionData);
-
-        foreach ($classids as $name => $id) {
-            $productClassToAttribute['attribute']['id'] = $listAttributeOuterId;
-            $productClassToAttribute['productClass']['id'] = $id;
-
-            $this->addToBatchArray($this->productClassAttributeRelationUri, '', $productClassToAttribute);
-        }
+        $this->addToBatchArray($this->attributeDescriptionsUri, $attributeDescriptionOuterId, $attributeDescriptionData);
 
         foreach ($listAttribute['values'] as $attributeValue => $value) {
-//            dump($key);die;
             $listAttributeValueOuterId = $this->getListAttributeValueOuterId($attributeValue);
 
             $listAttributeValueData['id'] = $listAttributeValueOuterId;
             $listAttributeValueData['listAttribute']['id'] = $listAttributeOuterId;
 
+            $listAttributeValueDescriptionDataOuterId = $this->getListAttributeValueDescriptionData($attributeValue);
+            $listAttributeValueDescriptionData['id'] = $listAttributeValueDescriptionDataOuterId;
             $listAttributeValueDescriptionData['name'] = $attributeValue;
             $listAttributeValueDescriptionData['listAttributeValue']['id'] = $listAttributeValueOuterId;
-            $listAttributeValueDescriptionData['language']['id'] = 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ==';
+            $listAttributeValueDescriptionData['language']['id'] = $this->hungarianLanguageId;
 
 
             $this->addToBatchArray($this->listAttributeValuesUri, $listAttributeValueOuterId, $listAttributeValueData);
-            $this->addToBatchArray($this->listAttributeValueDescriptionsUri, '', $listAttributeValueDescriptionData);
+            $this->addToBatchArray($this->listAttributeValueDescriptionsUri, $listAttributeValueDescriptionDataOuterId, $listAttributeValueDescriptionData);
         }
     }
 
@@ -79,5 +90,23 @@ class ListAttributeMigration extends BatchMigration
     public function getListAttributeValueOuterId($data)
     {
         return base64_encode('product_listAttributeValue=' . $data);
+    }
+    public function getAttributeDescriptionOuterId($data)
+    {
+        return base64_encode('product_attributeDescription=' . $data);
+    }
+    public function getListAttributeValueDescriptionData($data)
+    {
+        return base64_encode('product_ListAttributeValueDescription=' . $data);
+    }
+
+    public function collectListAttributeIds($listAttributeOuterId)
+    {
+        $this->attributeHrefs[] = $listAttributeOuterId;
+    }
+
+    public function getAttributeIds()
+    {
+        return $this->attributeHrefs;
     }
 }
