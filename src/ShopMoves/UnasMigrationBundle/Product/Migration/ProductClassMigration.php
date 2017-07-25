@@ -21,19 +21,17 @@ class ProductClassMigration extends BatchMigration
 
     protected $productClassUri = 'productClasses';
 
-    protected $productClassAttributeRelationUri = 'productClassAttributeRelations';
 
     protected $productClasses = [];
 
-    protected $listAttributeMigration;
+
 
     public function __construct(
         ProductDataProvider $dataProvider,
-        ListAttributeMigration $listAttributeMigration,
         ApiCall $apiCall,
         ContainerInterface $container
     ) {
-        $this->listAttributeMigration = $listAttributeMigration;
+
         parent::__construct($dataProvider, $apiCall, $container);
     }
     public function process($product)
@@ -53,30 +51,28 @@ class ProductClassMigration extends BatchMigration
         }
     }
 
-    public function getOuterId($class)
+    public function getProductClassOuterId($class)
     {
-        return base64_encode('product-Product-Class=' . $class->Id);
+        return base64_encode('product-Product-Class=' . $class->Name . $this->timeStamp);
     }
 
     public function buildClassBatch($class)
     {
         if(!array_key_exists($class->Name, $this->productClasses)) {
-            $this->productClasses[$class->Name] = true;
-            $outerId = $this->getOuterId($class);
+            $outerId = $this->getProductClassOuterId($class);
+            $this->productClasses[$class->Name] = [
+                'id' => $outerId
+            ];
             $data['id'] = $outerId;
             $data['name'] = 'Változó ' . $class->Name . ' szerint';
             $data['firstVariantSelectType'] = 'LIST';
-            $data['firstVariantParameter']['id'] = base64_encode('product_listAttribute=' . Transliterator::transliterate($class->Name, '_'));
+            $data['firstVariantParameter']['id'] = base64_encode(Transliterator::transliterate($class->Name, '_') . $this->timeStamp);
             $this->addToBatchArray($this->productClassUri, $outerId, $data);
-
-            $attributeOuterIds = $this->listAttributeMigration->getAttributeIds();
-//            dump($attributeOuterIds);die;
-            foreach ($attributeOuterIds as $attributeId) {
-                $productClassToAttribute['attribute']['id'] = $attributeId;
-                $productClassToAttribute['productClass']['id'] = $outerId;
-
-                $this->addToBatchArray($this->productClassAttributeRelationUri, '', $productClassToAttribute);
-            }
         }
+    }
+
+    public function getProductClasses()
+    {
+        return $this->productClasses;
     }
 }

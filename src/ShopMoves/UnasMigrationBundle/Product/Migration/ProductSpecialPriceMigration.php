@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ProductSpecialPriceMigration extends BatchMigration
 {
 
-    protected $specialPriceUri = '/productSpecials/';
+    protected $specialPriceUri = 'productSpecials';
 
     public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
@@ -66,6 +66,6 @@ class ProductSpecialPriceMigration extends BatchMigration
 
     public function getOuterId($data)
     {
-        return base64_encode($data['net'] . '_' . $data['sku']);
+        return base64_encode($data['net'] . '_' . $data['sku']. $this->timeStamp);
     }
 }

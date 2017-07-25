@@ -37,4 +37,13 @@ abstract class DataProvider implements IDataProvider
     {
         return $this->getCacheDir() . '/' . $fileName . '.' . $extension;
     }
+
+    public function getFileContentAsJson()
+    {
+        $fileUrl = $this->getFileUrl($this->fileName, $this->extension);
+        $content = file_get_contents($fileUrl);
+        $json = json_decode($content);
+
+        return $json;
+    }
 }

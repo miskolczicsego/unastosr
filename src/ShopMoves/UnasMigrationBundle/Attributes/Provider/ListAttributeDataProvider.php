@@ -11,6 +11,7 @@ namespace ShopMoves\UnasMigrationBundle\Attributes\Provider;
 
 use Behat\Transliterator\Transliterator;
 use ShopMoves\UnasMigrationBundle\Provider\DataProvider;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ListAttributeDataProvider extends DataProvider
 {
@@ -30,18 +31,23 @@ class ListAttributeDataProvider extends DataProvider
 
     protected $attributeValueToProduct = [];
 
+    protected $timeStamp;
+
+    /**
+     * ListAttributeDataProvider constructor.
+     * @param ContainerInterface $container
+     */
     function __construct($container)
     {
+        $this->timeStamp = $container->get('timestamp_provider')->getTimestamp();
         parent::__construct($container);
     }
 
     public function getData()
     {
         $this->slugifier = $this->container->get('slugifier');
-        $fileUrl = $this->getFileUrl($this->fileName, $this->extension);
-        $content = file_get_contents($fileUrl);
 
-        $json = json_decode($content);
+        $json = $this->getFileContentAsJson();
 
         $products = $json->Products->Product;
         foreach ($products as $product) {
@@ -86,9 +92,12 @@ class ListAttributeDataProvider extends DataProvider
     public function gatherListAttributeDatas($param)
     {
         if(!array_key_exists($param->Name, $this->listAttributeDatas)) {
+            $slug = $this->getSlugifiedNameOfAttribute($param->Name);
             $this->listAttributeDatas[$param->Name] = [
+                'id' => $param->Id,
+                'outerId' => $this->getListAttributeOuterId($slug),
                 'type' => 'LIST',
-                'slug' => Transliterator::transliterate($param->Name, '_'),
+                'slug' => $slug,
                 'name' => $param->Name,
                 'values' => [$param->Value => 1]
             ];
@@ -102,7 +111,7 @@ class ListAttributeDataProvider extends DataProvider
     public function setProductClassId($class)
     {
         if (!array_key_exists($class->Id, $this->productClassIds)) {
-            $this->productClassIds[$class->Name] = base64_encode('product-Product-Class=' . $class->Id);
+            $this->productClassIds[$class->Name] = base64_encode('product-Product-Class=' . $class->Name . $this->timeStamp);
         }
     }
 
@@ -118,18 +127,31 @@ class ListAttributeDataProvider extends DataProvider
     public function gatherAttributeValuesToProduct($product, $data)
     {
         $this->attributeValueToProduct[$product->Sku][] = [
-            'listAttributeId' => $this->getListAttributeValueOuterId($data->Value)
+            'listAttributeValueId' => $this->getListAttributeValueOuterId($data->Value)
         ];
 
     }
 
-    public function getListAttributeValueOuterId($data)
+    public function getSlugifiedNameOfAttribute($name)
     {
-        return base64_encode('product_listAttributeValue=' . $data);
+        return Transliterator::transliterate($name, '_');
     }
 
-    public function getProductOuterId($product)
+    /**
+     * @param $attributeValue
+     * @return string
+     */
+    public function getListAttributeValueOuterId($attributeValue)
     {
-        return base64_encode('product_id-Product=' . $product->Sku);
+        return base64_encode('product_listAttributeValue=' . $attributeValue . '_' . $this->timeStamp);
+    }
+
+    /**
+     * @param $slug
+     * @return string
+     */
+    public function getListAttributeOuterId($slug)
+    {
+        return base64_encode('product_listAttribute=' . $slug . $this->timeStamp);
     }
 }

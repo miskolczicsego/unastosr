@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ProductDescriptionMigration extends BatchMigration
 {
 
-    protected $productDescriptionUri = '/productDescriptions/';
+    protected $productDescriptionUri = 'productDescriptions';
 
     public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
     {
@@ -56,6 +56,6 @@ class ProductDescriptionMigration extends BatchMigration
 
     public function getOuterId($product)
     {
-        return base64_encode('product_description-Product='.$product->Id);
+        return base64_encode('product_description-Product='.$product->Id. $this->timeStamp);
     }
 }

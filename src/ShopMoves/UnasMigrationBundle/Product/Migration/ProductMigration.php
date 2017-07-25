@@ -20,14 +20,8 @@ class ProductMigration extends BatchMigration
 
     protected $productUri = 'products';
 
-    protected $productListAttributeValueRelationsUri = 'productListAttributeValueRelations';
 
     protected $mainImageToProduct;
-
-    /**
-     * @var ListAttributeDataProvider $listAttributeDataProvider
-     */
-    protected $listAttributeDataProvider;
 
     /**
      * ProductMigration constructor.
@@ -35,9 +29,12 @@ class ProductMigration extends BatchMigration
      * @param ApiCall $apiCall
      * @param ContainerInterface $container
      */
-    public function __construct(ProductDataProvider $dataProvider, ListAttributeDataProvider $listAttributeDataProvider, ApiCall $apiCall, ContainerInterface $container)
-    {
-        $this->listAttributeDataProvider = $listAttributeDataProvider;
+    public function __construct(
+        ProductDataProvider $dataProvider,
+        ApiCall $apiCall,
+        ContainerInterface $container
+    ) {
+
         parent::__construct($dataProvider, $apiCall, $container);
     }
 
@@ -52,11 +49,10 @@ class ProductMigration extends BatchMigration
             return;
         }
 
-        $values = $this->listAttributeDataProvider->getAttributeValueToProductBySku($product->Sku);
         $unasStatus = $product->Statuses->Status->Value;
         $srStatus = ($unasStatus == '1' || $unasStatus == '2' || $unasStatus == '3') ? '1' : '0';
-        $outerId = $this->getProductOuterId($product);
-        $data['id'] = $outerId;
+        $productOuterId = $this->getProductOuterId($product);
+        $data['id'] = $productOuterId;
         $data['sku'] = $product->Sku;
         $data['status'] = $srStatus;
         if ($unasStatus == '3') {
@@ -70,22 +66,8 @@ class ProductMigration extends BatchMigration
         $data['mainPicture'] = $this->getMainPictureToProduct($product);
         $data['parentProduct']['id'] = $this->getParentProduct($product);
         $data['productClass']['id'] = $this->getProductClassId($product);
-        $this->addToBatchArray($this->productUri, $outerId, $data);
 
-        if(!empty($values)) {
-            foreach ($values as $value) {
-                $listValueToProduct['product']['id'] = $outerId;
-                $listValueToProduct['listAttributeValue']['id'] = $value['listAttributeId'];
-                $this->addToBatchArray($this->productListAttributeValueRelationsUri, '' , $listValueToProduct);
-            }
-        }
-
-
-    }
-
-    public function getOuterId($product)
-    {
-//        return base64_encode($product->Sku);/
+        $this->addToBatchArray($this->productUri, $productOuterId, $data);
     }
 
     public function getProductPrice($productPrices)
@@ -110,20 +92,19 @@ class ProductMigration extends BatchMigration
     public function getParentProduct($product)
     {
         if(isset($product->Types) && $product->Types->Type === 'child') {
-            return base64_encode('product_id-Product=' . $product->Types->Parent);
+            return base64_encode('product_id-Product=' . $product->Types->Parent . $this->timeStamp);
         }
     }
 
 
-    //TODO: ez a kiscipo boltra jó, de máshol nem ez lesz a Terméktípus => fix
     public function getProductClassId($product)
     {
 //        dump($product->Datas);die;
         if (isset($product->Params) && is_array($product->Params->Param)) {
             $class = array_pop($product->Params->Param);
-            return base64_encode('product-Product-Class=' . $class->Id);
+            return base64_encode('product-Product-Class=' . $class->Id . $this->timeStamp);
         } elseif (isset($product->Params) && !is_array($product->Params->Param)) {
-                return base64_encode('product-Product-Class=' . $product->Params->Param->Id);
+                return base64_encode('product-Product-Class=' . $product->Params->Param->Id . $this->timeStamp);
         }
         return '';
     }

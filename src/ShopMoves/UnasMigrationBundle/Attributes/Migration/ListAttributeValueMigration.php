@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: miskolczicsego
- * Date: 2017.07.19.
- * Time: 13:40
+ * Date: 2017.07.25.
+ * Time: 12:57
  */
 
 namespace ShopMoves\UnasMigrationBundle\Attributes\Migration;
@@ -14,26 +14,20 @@ use ShopMoves\UnasMigrationBundle\Attributes\Provider\ListAttributeDataProvider;
 use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class ListAttributeMigration extends BatchMigration
+class ListAttributeValueMigration extends BatchMigration
 {
     /**
-     * @var string $listAttributesUri
+     * @var string $listAttributeValuesUri
      */
-    protected $listAttributesUri = 'listAttributes';
-
-    /**
-     * @var array $listAttributeIds
-     */
-    protected $listAttributeIds = [];
+    protected $listAttributeValuesUri = 'listAttributeValues';
 
     /**
      * @var ListAttributeDataProvider $listAttributeDataProvider
      */
     protected $listAttributeDataProvider;
 
-
     /**
-     * ListAttributeMigration constructor.
+     * ListAttributeValueMigration constructor.
      * @param ListAttributeDataProvider $listAttributeDataProvider
      * @param ApiCall $apiCall
      * @param ContainerInterface $container
@@ -48,7 +42,7 @@ class ListAttributeMigration extends BatchMigration
     }
 
     /**
-     * @param $listAttribute
+     * @param array $listAttribute
      */
     public function process($listAttribute)
     {
@@ -56,24 +50,17 @@ class ListAttributeMigration extends BatchMigration
             ->listAttributeDataProvider
             ->getListAttributeOuterId($listAttribute['slug']);
 
-        $this->collectListAttributeIds($listAttributeOuterId);
+        foreach ($listAttribute['values'] as $attributeValue => $value) {
 
-        $listAttributeData['id'] = $listAttributeOuterId;
-        $listAttributeData['type'] = $listAttribute['type'];
-        $listAttributeData['name'] = $listAttribute['slug'];
-        $listAttributeData['priority'] = 'NORMAL';
-        $listAttributeData['presentation'] = 'TEXT';
+            $listAttributeValueOuterId = $this
+                ->listAttributeDataProvider
+                ->getListAttributeValueOuterId($attributeValue);
 
-        $this->addToBatchArray($this->listAttributesUri, $listAttributeOuterId, $listAttributeData);
-    }
+            $listAttributeValueData['id'] = $listAttributeValueOuterId;
+            $listAttributeValueData['listAttribute']['id'] = $listAttributeOuterId;
 
-    public function collectListAttributeIds($listAttributeOuterId)
-    {
-        $this->listAttributeIds[] = $listAttributeOuterId;
-    }
+            $this->addToBatchArray($this->listAttributeValuesUri, $listAttributeValueOuterId, $listAttributeValueData);
+        }
 
-    public function getListAttributeIds()
-    {
-        return $this->listAttributeIds;
     }
 }

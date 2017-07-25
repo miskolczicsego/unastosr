@@ -7,6 +7,9 @@
     <parameters>
         <parameter key="shopmoves.unasmigration.attributes.provider.listattributedataprovider.class">ShopMoves\UnasMigrationBundle\Attributes\Provider\ListAttributeDataProvider</parameter>
         <parameter key="shopmoves.unasmigration.attributes.migration.listattributemigration.class">ShopMoves\UnasMigrationBundle\Attributes\Migration\ListAttributeMigration</parameter>
+        <parameter key="shopmoves.unasmigration.attributes.migration.listattributedescriptionmigration.class">ShopMoves\UnasMigrationBundle\Attributes\Migration\ListAttributeDescriptionMigration</parameter>
+        <parameter key="shopmoves.unasmigration.attributes.migration.listattributevaluemigration.class">ShopMoves\UnasMigrationBundle\Attributes\Migration\ListAttributeValueMigration</parameter>
+        <parameter key="shopmoves.unasmigration.attributes.migration.listattributevaluedescriptionmigration.class">ShopMoves\UnasMigrationBundle\Attributes\Migration\ListAttributeValueDescriptionMigration</parameter>
     </parameters>
 
     <services>
@@ -14,6 +17,23 @@
             <argument type="service" id="service_container"/>
         </service>
         <service id="list_attribute_migration" class="%shopmoves.unasmigration.attributes.migration.listattributemigration.class%">
+            <argument type="service" id="list_attribute_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+        <service id="list_attribute_description_migration" class="%shopmoves.unasmigration.attributes.migration.listattributedescriptionmigration.class%">
+            <argument type="service" id="list_attribute_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="list_attribute_value_migration" class="%shopmoves.unasmigration.attributes.migration.listattributevaluemigration.class%">
+            <argument type="service" id="list_attribute_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="list_attribute_value_description_migration" class="%shopmoves.unasmigration.attributes.migration.listattributevaluedescriptionmigration.class%">
             <argument type="service" id="list_attribute_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>

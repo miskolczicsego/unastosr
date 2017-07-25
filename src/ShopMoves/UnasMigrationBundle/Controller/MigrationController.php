@@ -18,6 +18,8 @@ class MigrationController extends Controller
     {
         $migrationManager = $this->container->get('shopmoves.unasmigration.migration.migration_manager');
 
+        $this->get('timestamp_provider')->createTimestamp();
+
         $migrationManager->start();
 
         return new Response('END', 200);

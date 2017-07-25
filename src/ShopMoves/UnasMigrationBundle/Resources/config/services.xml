@@ -13,6 +13,7 @@
         <parameter key="shopmoves.unasmigration.utils.csvtoarray.class">ShopMoves\UnasMigrationBundle\Utils\CsvToArray</parameter>
         <parameter key="shopmoves.unasmigration.utils.imagedownloader.class">ShopMoves\UnasMigrationBundle\Utils\ImageDownloader</parameter>
         <parameter key="shopmoves.unasmigration.utils.slugifier.class">ShopMoves\UnasMigrationBundle\Utils\Slugifier</parameter>
+        <parameter key="shopmoves.unasmigration.utils.timestampprovider.class">ShopMoves\UnasMigrationBundle\Utils\TimestampProvider</parameter>
     </parameters>
     <services>
 
@@ -20,6 +21,7 @@
 
         <service id="csv_to_array" class="%shopmoves.unasmigration.utils.csvtoarray.class%"/>
         <service id="slugifier" class="%shopmoves.unasmigration.utils.slugifier.class%"/>
+        <service id="timestamp_provider" class="%shopmoves.unasmigration.utils.timestampprovider.class%"/>
 
         <service id="image_downloader" class="%shopmoves.unasmigration.utils.imagedownloader.class%"/>
 

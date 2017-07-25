@@ -17,10 +17,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ProductOptionMigration extends BatchMigration
 {
 
-    protected $productOptionUri = '/productOptions/';
-    protected $productOptionValuesUri = '/productOptionValues/';
-    protected $productOptionDescriptionsUri = '/productOptionDescriptions';
-    protected $productOptionValueDescriptionsUri = '/productOptionValueDescriptions/';
+    protected $productOptionUri = 'productOptions';
+    protected $productOptionValuesUri = 'productOptionValues';
+    protected $productOptionDescriptionsUri = 'productOptionDescriptions';
+    protected $productOptionValueDescriptionsUri = 'productOptionValueDescriptions';
 
     protected $productOptionOuterId;
 
@@ -102,22 +102,22 @@ class ProductOptionMigration extends BatchMigration
 
     public function getProductOptionOuterId($optionName, $productSku)
     {
-        return base64_encode('product_product-option-outer-id=' . $optionName . '_' . $productSku);
+        return base64_encode('product_product-option-outer-id=' . $optionName . '_' . $productSku. $this->timeStamp);
     }
 
     public function getProductOptionDescriptionOuterId($optionName, $productSku)
     {
-        return base64_encode('product_product-option-description-outer-id=' . $optionName . '_' . $productSku);
+        return base64_encode('product_product-option-description-outer-id=' . $optionName . '_' . $productSku. $this->timeStamp);
     }
 
     public function getProductOptionValueOuterId($optionValue, $productSku)
     {
-        return base64_encode('product_product-option-value-outer-id=' . $optionValue . '_' . $productSku);
+        return base64_encode('product_product-option-value-outer-id=' . $optionValue . '_' . $productSku. $this->timeStamp);
     }
 
     public function getProductOptionValueDescriptionOuterId($optionValueName, $productSku)
     {
-        return base64_encode('product_product-option-value-description-outer-id=' . $optionValueName . '_' . $productSku);
+        return base64_encode('product_product-option-value-description-outer-id=' . $optionValueName . '_' . $productSku. $this->timeStamp);
     }
 
 }
