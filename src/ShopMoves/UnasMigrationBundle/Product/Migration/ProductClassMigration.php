@@ -12,6 +12,7 @@ namespace ShopMoves\UnasMigrationBundle\Product\Migration;
 use Behat\Transliterator\Transliterator;
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
 use ShopMoves\UnasMigrationBundle\Attributes\Migration\ListAttributeMigration;
+use ShopMoves\UnasMigrationBundle\Attributes\Provider\ListAttributeDataProvider;
 use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
 use ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,18 +23,39 @@ class ProductClassMigration extends BatchMigration
     protected $productClassUri = 'productClasses';
 
 
+    /**
+     * @var array $productClasses
+     */
     protected $productClasses = [];
 
+    /**
+     * @var ProductDataProvider
+     */
+    protected $productDataProvider;
 
 
+    protected $listAttributeDataProvider;
+
+    /**
+     * ProductClassMigration constructor.
+     * @param ProductDataProvider $productDataProvider
+     * @param ListAttributeDataProvider $listAttributeDataProvider
+     * @param ApiCall $apiCall
+     * @param ContainerInterface $container
+     */
     public function __construct(
-        ProductDataProvider $dataProvider,
+        ProductDataProvider $productDataProvider,
+        ListAttributeDataProvider $listAttributeDataProvider,
         ApiCall $apiCall,
         ContainerInterface $container
     ) {
-
-        parent::__construct($dataProvider, $apiCall, $container);
+        $this->listAttributeDataProvider=$listAttributeDataProvider;
+        parent::__construct($productDataProvider, $apiCall, $container);
     }
+
+    /**
+     * @param object $product
+     */
     public function process($product)
     {
         if ($this->isProductDeleted($product) || !isset($product->Params) || empty($product->Params)) {
@@ -51,22 +73,17 @@ class ProductClassMigration extends BatchMigration
         }
     }
 
-    public function getProductClassOuterId($class)
-    {
-        return base64_encode('product-Product-Class=' . $class->Name . $this->timeStamp);
-    }
-
     public function buildClassBatch($class)
     {
         if(!array_key_exists($class->Name, $this->productClasses)) {
-            $outerId = $this->getProductClassOuterId($class);
+            $outerId = $this->productDataProvider->getProductClassOuterId($class);
             $this->productClasses[$class->Name] = [
                 'id' => $outerId
             ];
             $data['id'] = $outerId;
             $data['name'] = 'Változó ' . $class->Name . ' szerint';
             $data['firstVariantSelectType'] = 'LIST';
-            $data['firstVariantParameter']['id'] = base64_encode(Transliterator::transliterate($class->Name, '_') . $this->timeStamp);
+            $data['firstVariantParameter']['id'] = $this->listAttributeDataProvider->getListAttributeOuterId(Transliterator::transliterate($class->Name, '_'));
             $this->addToBatchArray($this->productClassUri, $outerId, $data);
         }
     }

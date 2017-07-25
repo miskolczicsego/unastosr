@@ -26,11 +26,13 @@ class ProductDataProvider extends DataProvider
 
     public function getData()
     {
-        $fileUrl = $this->getFileUrl($this->fileName, $this->extension);
-        $content = file_get_contents($fileUrl);
-
-        $json = json_decode($content);
+        $json = $this->getFileContentAsJson();
 
         return $json->Products->Product;
+    }
+
+    public function getProductClassOuterId($class)
+    {
+        return base64_encode('product-Product-Class=' . $class->Name . $this->timeStamp);
     }
 }

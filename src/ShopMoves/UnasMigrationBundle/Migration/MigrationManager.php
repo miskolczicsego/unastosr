@@ -45,13 +45,11 @@ class MigrationManager
 //        $this->container->get('customer_group_migration')->migrate($timeStamp);
 //        $this->container->get('customer_migration')->migrate($timeStamp);
 //        $this->container->get('customer_address_migration')->migrate($timeStamp);
-        //TODO: a képletöltő/feltöltő még szar
-//        $this->container->get('product_image_migration')->migrate();
         $this->container->get('list_attribute_migration')->migrate();
         $this->container->get('list_attribute_description_migration')->migrate();
         $this->container->get('list_attribute_value_migration')->migrate();
         $this->container->get('list_attribute_value_description_migration')->migrate();
-//        $this->container->get('product_class_migration')->migrate();
+        $this->container->get('product_class_migration')->migrate();
 //        $this->container->get('attribute_to_product_class')->migrate();
 //        $this->container->get('product_migration')->migrate();
 //        $this->container->get('product_to_list_attribute_migration')->migrate();

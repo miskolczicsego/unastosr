@@ -58,6 +58,7 @@
 
         <service id="product_class_migration" class="%shopmoves.unasmigration.product.migration.productclassmigration.class%">
             <argument type="service" id="product_data_provider"/>
+            <argument type="service" id="list_attribute_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>
         </service>
