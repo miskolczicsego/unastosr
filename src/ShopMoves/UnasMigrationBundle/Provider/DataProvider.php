@@ -8,7 +8,9 @@
 
 namespace ShopMoves\UnasMigrationBundle\Provider;
 
-use ShopMoves\UnasMigrationBundle\Utils\CsvToArray;
+
+use ShopMoves\UnasMigrationBundle\Helper\LanguageHelper;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 abstract class DataProvider implements IDataProvider
 {
@@ -17,12 +19,26 @@ abstract class DataProvider implements IDataProvider
 
     protected $extension;
 
+    /**
+     * @var ContainerInterface $container
+     */
     protected $container;
 
+    protected $timeStamp;
 
-    function __construct($container)
+    /**
+     * @var LanguageHelper $languageHelper
+     */
+    protected $languageHelper;
+
+
+    protected $hungarianLanguageId;
+
+    function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->languageHelper = $container->get('language_helper');
+        $this->timeStamp = $container->get('timestamp_provider')->getTimestamp();
     }
 
     abstract public function getData();
@@ -43,7 +59,14 @@ abstract class DataProvider implements IDataProvider
         $fileUrl = $this->getFileUrl($this->fileName, $this->extension);
         $content = file_get_contents($fileUrl);
         $json = json_decode($content);
-
+        unset($content);
         return $json;
+    }
+
+    public function getSRHungarianLanguageId()
+    {
+         $hungarianLanguageId = $this->languageHelper->getLanguageByKey('HU');
+
+         return $hungarianLanguageId;
     }
 }

@@ -12,6 +12,7 @@ namespace ShopMoves\UnasMigrationBundle\Product\Migration;
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
 use ShopMoves\UnasMigrationBundle\Attributes\Migration\ListAttributeMigration;
 use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
+use ShopMoves\UnasMigrationBundle\Product\Provider\ProductClassDataProvider;
 use ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -22,28 +23,27 @@ class AttributeToProductClassMigration extends BatchMigration
 
     protected $listAttributeMigration;
 
+    /**
+     * @var ProductClassMigration $productClassMigration
+     */
     protected $productClassMigration;
 
+    protected $productDataProvider;
+    protected $productClassDataProvider;
+
     public function __construct(
-        ProductDataProvider $dataProvider,
+        ProductClassDataProvider $productClassDataProvider,
         ListAttributeMigration $listAttributeMigration,
-        ProductClassMigration $productClassMigration,
         ApiCall $apiCall,
         ContainerInterface $container
     ) {
         $this->listAttributeMigration = $listAttributeMigration;
-        $this->productClassMigration = $productClassMigration;
-        parent::__construct($dataProvider, $apiCall, $container);
+        $this->productClassDataProvider = $productClassDataProvider;
+        parent::__construct($productClassDataProvider, $apiCall, $container);
     }
 
-    public function process($product)
+    public function process($productClasses)
     {
-        if ($this->isProductDeleted($product) || !isset($product->Params) || empty($product->Params)) {
-            return;
-        }
-
-        $productClasses = $this->productClassMigration->getProductClasses();
-
         foreach ($productClasses as $class) {
             $this->buildAttributeClassRelations($class);
         }
@@ -51,11 +51,11 @@ class AttributeToProductClassMigration extends BatchMigration
 
     public function buildAttributeClassRelations($class)
     {
-        $attributeOuterIds = $this->listAttributeMigration->getAttributeIds();
+        $attributeOuterIds = $this->listAttributeMigration->getListAttributeIds();
         foreach ($attributeOuterIds as $attributeId) {
 
             $productClassToAttribute['attribute']['id'] = $attributeId;
-            $productClassToAttribute['productClass']['id'] = $class['id'];
+            $productClassToAttribute['productClass']['id'] = $this->productClassDataProvider->getProductClassOuterId($class);
 
             $this->addToBatchArray($this->productClassAttributeRelationUri,'',  $productClassToAttribute);
         }

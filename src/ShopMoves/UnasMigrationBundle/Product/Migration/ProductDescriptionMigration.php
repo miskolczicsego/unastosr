@@ -20,42 +20,47 @@ class ProductDescriptionMigration extends BatchMigration
 
     protected $productDescriptionUri = 'productDescriptions';
 
-    public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
-    {
-        parent::__construct($dataProvider, $apiCall, $container);
+    protected $productDataProvider;
+
+    public function __construct(
+        ProductDataProvider $productDataProvider,
+        ApiCall $apiCall,
+        ContainerInterface $container
+    ) {
+        $this->productDataProvider = $productDataProvider;
+        parent::__construct($productDataProvider, $apiCall, $container);
     }
 
     public function process($product)
     {
-        if ($this->isProductDeleted($product)) {
+        if ($this->productDataProvider->isProductDeleted($product)) {
             return;
         }
-        $outerId = $this->getOuterId($product);
 
-        $data['id'] = $this->getOuterId($product);
         $data['name'] = $product->Name;
-        $data['shortDescription'] = isset($product->Description->Short) ? $product->Description->Short : '';
-        $data['description'] = isset($product->Description->Long) ? $product->Description->Long : '';
+
+        $data['shortDescription'] = isset($product->Description->Short) ?
+            $product->Description->Short :
+            '';
+
+        $data['description'] = isset($product->Description->Long) ?
+            $product->Description->Long :
+            '';
+
         $data['packagingUnit'] = $product->Unit;
+
         if(isset($product->Meta)) {
             $data['metaKeywords'] = isset($product->Meta->Keywords) ? $product->Meta->Keywords : '';
             $data['metaDescription'] = isset($product->Meta->Description) ? $product->Meta->Description : '';
         }
 
-
         $data['product'] = [
-            "id" => $this->getProductOuterId($product)
+            "id" => $this->productDataProvider->getProductOuterId($product->Sku)
         ];
-        //fixen a magyar nyelv resource id-ja egyenlőre
         $data['language'] = [
-            "id" => 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ=='
+            "id" => $this->productDataProvider->getSRHungarianLanguageId()
         ];
 
-        $this->addToBatchArray($this->productDescriptionUri, $outerId, $data);
-    }
-
-    public function getOuterId($product)
-    {
-        return base64_encode('product_description-Product='.$product->Id. $this->timeStamp);
+        $this->addToBatchArray($this->productDescriptionUri, '', $data);
     }
 }

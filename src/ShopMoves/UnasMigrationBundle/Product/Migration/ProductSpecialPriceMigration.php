@@ -19,53 +19,41 @@ class ProductSpecialPriceMigration extends BatchMigration
 
     protected $specialPriceUri = 'productSpecials';
 
-    public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
-    {
-        parent::__construct($dataProvider, $apiCall, $container);
+    /**
+     * @var ProductDataProvider $productDataProvider
+     */
+    protected $productDataProvider;
+
+    public function __construct(
+        ProductDataProvider $productDataProvider,
+        ApiCall $apiCall,
+        ContainerInterface $container
+    ) {
+        $this->productDataProvider = $productDataProvider;
+        parent::__construct($productDataProvider, $apiCall, $container);
     }
 
     public function process($product)
     {
 
-        if ($this->isProductDeleted($product)) {
+        if ($this->productDataProvider->isProductDeleted($product)) {
             return;
         }
         if (count($product->Prices->Price) >= 2) {
-            $price = $this->getSpecialPrice($product);
+            $price = $this->productDataProvider->getProductSpecialPrice($product);
         } else {
             return;
         }
-        $outerId = $this->getOuterId($price[$product->Sku]);
-        $data['id'] = $outerId;
         $data['price'] = $price[$product->Sku]['net'];
-        $data['dateFrom'] = isset($price[$product->Sku]['start']) ? $price[$product->Sku]['start'] : '0000-00-00';
-        $data['dateTo'] = isset($price[$product->Sku]['end']) ? $price[$product->Sku]['end'] : '0000-00-00';
-        $data['product']['id'] = $this->getProductOuterId($product);
 
-        $this->addToBatchArray($this->specialPriceUri, $outerId, $data);
-    }
+        $data['dateFrom'] = isset($price[$product->Sku]['start']) ?
+            $price[$product->Sku]['start'] : '0000-00-00';
 
-    public function getSpecialPrice($product)
-    {
-        $special = [];
-        foreach ($product->Prices->Price as $price) {
-            if ($price->Type === 'sale') {
-                $special[$product->Sku]['net'] = $price->Net;
-                $special[$product->Sku]['sku'] = $product->Sku;
-            }
-            if(isset($price->Start)) {
-                $special[$product->Sku]['start'] = $price->Start;
-            }
-            if(isset($price->End)) {
-                $special[$product->Sku]['end'] = $price->End;
-            }
-        }
+        $data['dateTo'] = isset($price[$product->Sku]['end']) ?
+            $price[$product->Sku]['end'] : '0000-00-00';
 
-        return $special;
-    }
+        $data['product']['id'] = $this->productDataProvider->getProductOuterId($product->Sku);
 
-    public function getOuterId($data)
-    {
-        return base64_encode($data['net'] . '_' . $data['sku']. $this->timeStamp);
+        $this->addToBatchArray($this->specialPriceUri, '', $data);
     }
 }

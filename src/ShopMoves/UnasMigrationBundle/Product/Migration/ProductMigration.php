@@ -12,6 +12,7 @@ namespace ShopMoves\UnasMigrationBundle\Product\Migration;
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
 use ShopMoves\UnasMigrationBundle\Attributes\Provider\ListAttributeDataProvider;
 use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
+use ShopMoves\UnasMigrationBundle\Product\Provider\ProductClassDataProvider;
 use ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -23,19 +24,32 @@ class ProductMigration extends BatchMigration
 
     protected $mainImageToProduct;
 
+    protected $taxHelper;
+
+    /**
+     * @var ProductDataProvider $productDataProvider
+     */
+    protected $productDataProvider;
+
+    protected $productClassDataProvider;
+
+
     /**
      * ProductMigration constructor.
-     * @param ProductDataProvider $dataProvider
+     * @param ProductDataProvider $productDataProvider
      * @param ApiCall $apiCall
      * @param ContainerInterface $container
      */
     public function __construct(
-        ProductDataProvider $dataProvider,
+        ProductDataProvider $productDataProvider,
+        ProductClassDataProvider $productClassDataProvider,
         ApiCall $apiCall,
         ContainerInterface $container
     ) {
-
-        parent::__construct($dataProvider, $apiCall, $container);
+        $this->productDataProvider = $productDataProvider;
+        $this->productClassDataProvider = $productClassDataProvider;
+        $this->taxHelper = $container->get('tax_helper');
+        parent::__construct($productDataProvider, $apiCall, $container);
     }
 
     /**
@@ -45,83 +59,36 @@ class ProductMigration extends BatchMigration
     public function process($product)
     {
 
-        if ($this->isProductDeleted($product)) {
+        if ($this->productDataProvider->isProductDeleted($product)) {
             return;
         }
 
         $unasStatus = $product->Statuses->Status->Value;
-        $srStatus = ($unasStatus == '1' || $unasStatus == '2' || $unasStatus == '3') ? '1' : '0';
-        $productOuterId = $this->getProductOuterId($product);
-        $data['id'] = $productOuterId;
-        $data['sku'] = $product->Sku;
-        $data['status'] = $srStatus;
+
+        $srStatus = $unasStatus == '0' ? '0' : '1';
+
+        $productOuterId = $this->productDataProvider->getProductOuterId($product->Sku);
+        $productData['id'] = $productOuterId;
+        $productData['sku'] = $product->Sku;
+        $productData['status'] = $srStatus;
         if ($unasStatus == '3') {
-            $data['orderable'] = 0;
+            $productData['orderable'] = 0;
         }
-        $data['price'] = count($product->Prices->Price) == 1 ? $product->Prices->Price->Net : $this->getProductPrice($product->Prices->Price);
-        $data['stock1'] = count($product->Stocks->Stock) == 1 ? $product->Stocks->Stock->Qty : $this->getProductQuantity($product->Stocks->Stock);
-        $data['taxClass'] = [
-            'id' => $this->container->get('tax_helper')->getTaxId($product->Prices->Vat)
+        $productData['price'] = count($product->Prices->Price) == 1 ?
+            $product->Prices->Price->Net :
+            $this->productDataProvider->getProductPrice($product->Prices->Price);
+
+        $productData['stock1'] = count($product->Stocks->Stock) == 1 ?
+            $product->Stocks->Stock->Qty :
+            $this->productDataProvider->getProductQuantity($product->Stocks->Stock);
+
+        $productData['taxClass'] = [
+            'id' => $this->taxHelper->getTaxId($product->Prices->Vat)
         ];
-        $data['mainPicture'] = $this->getMainPictureToProduct($product);
-        $data['parentProduct']['id'] = $this->getParentProduct($product);
-        $data['productClass']['id'] = $this->getProductClassId($product);
+        $productData['mainPicture'] = $this->productDataProvider->getMainPictureToProduct($product);
+        $productData['parentProduct']['id'] = $this->productDataProvider->getParentProductId($product);
+        $productData['productClass']['id'] = $this->productClassDataProvider->getProductClassIdToProduct($product);
 
-        $this->addToBatchArray($this->productUri, $productOuterId, $data);
+        $this->addToBatchArray($this->productUri, $productOuterId, $productData);
     }
-
-    public function getProductPrice($productPrices)
-    {
-        foreach ($productPrices as $price) {
-            if($price->Type == 'normal') {
-                return $price->Net;
-            }
-        }
-    }
-
-    public function getProductQuantity($productStocks)
-    {
-        $sum = 0;
-        foreach ($productStocks as $productStock) {
-            $sum += $productStock->Qty;
-        }
-
-        return $sum;
-    }
-
-    public function getParentProduct($product)
-    {
-        if(isset($product->Types) && $product->Types->Type === 'child') {
-            return base64_encode('product_id-Product=' . $product->Types->Parent . $this->timeStamp);
-        }
-    }
-
-
-    public function getProductClassId($product)
-    {
-//        dump($product->Datas);die;
-        if (isset($product->Params) && is_array($product->Params->Param)) {
-            $class = array_pop($product->Params->Param);
-            return base64_encode('product-Product-Class=' . $class->Id . $this->timeStamp);
-        } elseif (isset($product->Params) && !is_array($product->Params->Param)) {
-                return base64_encode('product-Product-Class=' . $product->Params->Param->Id . $this->timeStamp);
-        }
-        return '';
-    }
-
-    public function getMainPictureToProduct($product)
-    {
-        if (!isset($product->Images)) {
-            return '';
-        }
-        $image = $product->Images->Image;
-        if (is_array($image)) {
-            $path = 'product/' . basename($image[0]->Url->Medium);
-        } else {
-            $path = 'product/' . basename($image->Url->Medium);
-        }
-
-        return $path;
-    }
-
 }

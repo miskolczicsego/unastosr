@@ -11,6 +11,7 @@ namespace ShopMoves\UnasMigrationBundle\Migration;
 
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
 use ShopMoves\UnasMigrationBundle\Api\Response;
+use ShopMoves\UnasMigrationBundle\Helper\LanguageHelper;
 use ShopMoves\UnasMigrationBundle\Product\Migration\ProductImageMigration;
 use ShopMoves\UnasMigrationBundle\Provider\IDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -72,17 +73,12 @@ abstract class BatchMigration
 
     }
 
-    public function getMigrationId()
-    {
-        return $this->id;
-    }
-
     public function migrate()
     {
         $chunkSize = 5;
         $datas = $this->dataProvider->getData();
         $time = 0;
-//dump($datas);die;
+
         file_put_contents('status.log', 'Start of process ' . (get_class($this). PHP_EOL), FILE_APPEND);
         foreach ($datas as $data){
             $start = microtime(true);
@@ -91,36 +87,19 @@ abstract class BatchMigration
         }
         file_put_contents('status.log', 'End of process ' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL) , FILE_APPEND);
 
-//        die;
-        file_put_contents('api_send_status.log', 'Start of send to api ' . (get_class($this). PHP_EOL), FILE_APPEND);
-        $batch = [];
-        $chunk = array_chunk($this->batchData['requests'],$chunkSize, true);
-        $time = 0;
-        foreach ($chunk as $batch['requests']) {
-            $start = microtime(true);
-            $this->sendBatchData($batch);
-            $time += (microtime(true) - $start);
+
+        if(!empty($this->batchData)) {
+            $batch = [];
+            $time = 0;
+            file_put_contents('api_send_status.log', 'Start of send to api ' . (get_class($this). PHP_EOL),FILE_APPEND);
+            $chunk = array_chunk($this->batchData['requests'],$chunkSize, true);
+            foreach ($chunk as $batch['requests']) {
+                $start = microtime(true);
+                $this->sendBatchData($batch);
+                $time += (microtime(true) - $start);
+            }
+            file_put_contents('api_send_status.log', 'End of send to api' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL), FILE_APPEND);
         }
-        file_put_contents('api_send_status.log', 'End of send to api' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL), FILE_APPEND);
-        sleep(1);
-
-    }
-
-    public function isProductDeleted($product)
-    {
-        if ($product->State === 'deleted') {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @param $product
-     * @return string
-     */
-    public function getProductOuterId($product)
-    {
-        return base64_encode('product_productId' . $product->Sku. $this->timeStamp);
     }
 
     public function getUrl()
@@ -157,5 +136,7 @@ abstract class BatchMigration
         $data = $response->getData();
 
         dump($data);
+
+        unset($this->batchData);
     }
 }

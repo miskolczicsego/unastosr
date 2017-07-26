@@ -18,29 +18,30 @@ class ProductUrlAliasMigration extends BatchMigration
 {
     protected $urlAliasesUri = 'urlAliases';
 
-    public function __construct(ProductDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
-    {
-        parent::__construct($dataProvider, $apiCall, $container);
+    protected $productDataProvider;
+
+    public function __construct(
+        ProductDataProvider $productDataProvider,
+        ApiCall $apiCall,
+        ContainerInterface $container
+    ) {
+        $this->productDataProvider = $productDataProvider;
+        parent::__construct($productDataProvider, $apiCall, $container);
     }
 
     public function process($product)
     {
-        if ($this->isProductDeleted($product)) {
+        if ($this->productDataProvider->isProductDeleted($product)) {
             return;
         }
 
-        $alias = $this->getUrlAliasToProduct($product);
+        $alias = $this->productDataProvider->getUrlAliasToProduct($product);
         $data['urlAlias'] = $alias;
         $data['type'] = 'PRODUCT';
-        $data['urlAliasEntity']['id'] = $this->getProductOuterId($product);
+        $data['urlAliasEntity']['id'] = $this->productDataProvider->getProductOuterId($product->Sku);
 
         $this->addToBatchArray($this->urlAliasesUri, '', $data);
     }
 
-    public function getUrlAliasToProduct($product)
-    {
-        $urlParts = explode('/', $product->Url);
-        return $urlParts[count($urlParts) - 1];
 
-    }
 }

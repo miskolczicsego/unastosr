@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: miskolczicsego
- * Date: 2017.07.17.
- * Time: 12:37
+ * Date: 2017.07.26.
+ * Time: 15:33
  */
 
 namespace ShopMoves\UnasMigrationBundle\Product\Migration;
@@ -13,12 +13,13 @@ use ShopMoves\UnasMigrationBundle\Api\ApiCall;
 use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
 use ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider;
 use ShopMoves\UnasMigrationBundle\Product\Provider\ProductOptionDataProvider;
+use ShopMoves\UnasMigrationBundle\Provider\IDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class ProductOptionMigration extends BatchMigration
+class ProductOptionDescriptionMigration extends BatchMigration
 {
 
-    protected $productOptionUri = 'productOptions';
+    protected $productOptionDescriptionsUri = 'productOptionDescriptions';
 
     /**
      * @var ProductDataProvider $productOptionDataProvider
@@ -29,7 +30,6 @@ class ProductOptionMigration extends BatchMigration
      * @var ProductOptionDataProvider $productOptionDataProvider
      */
     protected $productOptionDataProvider;
-
 
     public function __construct(
         ProductOptionDataProvider $productOptionDataProvider,
@@ -44,27 +44,13 @@ class ProductOptionMigration extends BatchMigration
 
     public function process($option)
     {
-        $productOptionOuterId = $this
+        $productOptionDescriptionData['name'] = $option['name'];
+        $productOptionDescriptionData['productOption']['id'] = $this
             ->productOptionDataProvider
             ->getProductOptionOuterId($option['name'], $option['productSku']);
 
-        $productOptionData['id'] = $productOptionOuterId;
-        $productOptionData['product']['id'] = $this->productDataProvider->getProductOuterId($option['productSku']);
+        $productOptionDescriptionData['language']['id'] = $this->hungarianLanguageId;
 
-        $this->addToBatchArray($this->productOptionUri, $productOptionOuterId, $productOptionData);
-
+        $this->addToBatchArray($this->productOptionDescriptionsUri, '' , $productOptionDescriptionData);
     }
-
-//    public function buildOptionValueAndDescription($optionValue, $product)
-//    {
-//
-//        $productOptionValueDescriptionData['id'] = $productOptionValueDescriptionOuterId;
-//        $productOptionValueDescriptionData['name'] = $optionValue->Name;
-//        $productOptionValueDescriptionData['productOptionValue']['id'] = $productOptionValueOuterId;
-//        $productOptionValueDescriptionData['language'] = [
-//            'id' => $this->getHungarianLanguageResourceId()
-//        ];
-//        $this->addToBatchArray($this->productOptionValuesUri, $productOptionValueOuterId, $productOptionValueData);
-//        $this->addToBatchArray($this->productOptionValueDescriptionsUri, $productOptionValueDescriptionOuterId, $productOptionValueDescriptionData);
-//    }
 }

@@ -24,25 +24,33 @@ class ProductToListAttributeMigration extends BatchMigration
      * @var ListAttributeDataProvider $listAttributeDataProvider
      */
     protected $listAttributeDataProvider;
+
+    /**
+     * @var ProductDataProvider $productDataProvider
+     */
+    protected $productDataProvider;
+
+
     public function __construct(
-        ProductDataProvider $dataProvider,
+        ProductDataProvider $productDataProvider,
         ListAttributeDataProvider $listAttributeDataProvider,
         ApiCall $apiCall,
         ContainerInterface $container)
     {
         $this->listAttributeDataProvider = $listAttributeDataProvider;
-        parent::__construct($dataProvider, $apiCall, $container);
+        $this->productDataProvider = $productDataProvider;
+        parent::__construct($productDataProvider, $apiCall, $container);
     }
 
 
     public function process($product)
     {
-        if ($this->isProductDeleted($product)) {
+        if ($this->productDataProvider->isProductDeleted($product)) {
             return;
         }
 
         $values = $this->listAttributeDataProvider->getAttributeValueToProductBySku($product->Sku);
-        $productOuterId = $this->getProductOuterId($product);
+        $productOuterId = $this->productDataProvider->getProductOuterId($product->Sku);
         if(!empty($values)) {
             foreach ($values as $value) {
                 $listValueToProduct['product']['id'] = $productOuterId;
