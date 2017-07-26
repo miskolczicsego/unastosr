@@ -28,21 +28,24 @@ class CustomerMigration extends BatchMigration
      */
     protected $customerGroupHelper;
 
+    protected $customerDataProvider;
+
     /**
      * CustomerMigration constructor.
-     * @param CustomerDataProvider $dataProvider
+     * @param CustomerDataProvider $customerDataProvider
      * @param ApiCall $apiCall
      * @param ContainerInterface $container
      * @param CustomerGroupHelper $customerGroupHelper
      */
     public function __construct(
-        CustomerDataProvider $dataProvider,
+        CustomerDataProvider $customerDataProvider,
         ApiCall $apiCall,
         ContainerInterface $container,
         CustomerGroupHelper $customerGroupHelper
     ) {
         $this->customerGroupHelper = $customerGroupHelper;
-        parent::__construct($dataProvider, $apiCall, $container);
+        $this->customerDataProvider = $customerDataProvider;
+        parent::__construct($customerDataProvider, $apiCall, $container);
     }
 
     /**
@@ -52,56 +55,21 @@ class CustomerMigration extends BatchMigration
     {
         $nameParts = $this->container->get('customer_name_helper')->separate($customerData->Contact->Name);
 
-        $customerOuterId = $this->getCustomerOuterId($customerData->Id);
+        $customerOuterId = $this->customerDataProvider->getCustomerOuterId($customerData->Id);
         $data['id'] =  $customerOuterId;
         $data['firstname'] = $nameParts['firstname'];
         $data['lastname'] = $nameParts['lastname'];
         $data['email'] = $customerData->Email;
-        $data['telephone'] = $this->getCustomerPhoneNumber($customerData);
-        $data['password'] = $this->generatePasswordFromEmail($customerData->Email);
+        $data['telephone'] = $this->customerDataProvider->getCustomerPhoneNumber($customerData);
+        $data['password'] = $this->customerDataProvider->generatePasswordFromEmail($customerData->Email);
         $data['newsletter'] = $customerData->Newsletter->Subscribed == "yes" ? 1 : 0;
         $data['status'] = $customerData->Authorize->Customer == "yes" ? 1 : 0;
         $data['customerGroup'] = [
             'id' => isset($customerData->Group->Id) ?
-                $this->getCustomerGroupOuterId($customerData->Group->Id) :
+                $this->customerDataProvider->getCustomerGroupOuterId($customerData->Group->Id) :
                 $this->customerGroupHelper->getDefaultSRCustomerGroup()
         ];
 
         $this->addToBatchArray($this->customerUri, $customerOuterId, $data);
-    }
-
-    public function getCustomerPhoneNumber($data)
-    {
-        if (is_string($data->Contact->Mobile)) {
-            return $data->Contact->Mobile;
-        }
-        return $data->Contact->Phone;
-    }
-
-    /**
-     * @param string $data
-     * @return string
-     */
-    public function getCustomerOuterId($data)
-    {
-        return base64_encode('customer-customer_id=' . $data);
-    }
-
-    /**
-     * @param String $data
-     * @return string
-     */
-    public function getCustomerGroupOuterId($data)
-    {
-        return base64_encode('customerGroup-customer_group_id=' . $data);
-    }
-
-    /**
-     * @param $email
-     * @return bool|false|string
-     */
-    public function generatePasswordFromEmail($email)
-    {
-        return password_hash($email, PASSWORD_DEFAULT);
     }
 }

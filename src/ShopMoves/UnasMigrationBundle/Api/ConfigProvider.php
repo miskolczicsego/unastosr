@@ -37,8 +37,13 @@ class ConfigProvider
 //        $this->url = 'http://kiscip.api.shoprenter.hu';
 
         //DEMO
-        $this->username = 'test';
-        $this->apiKey = '2dcd07ef6f3515a5f3a00daba7967fb6';
+//        $this->username = 'test';
+//        $this->apiKey = '2dcd07ef6f3515a5f3a00daba7967fb6';
+//        $this->url = 'http://demo.api.aurora.miskolczicsego';
+
+        //DEMO OTTHONI
+        $this->username = 'demo1234';
+        $this->apiKey = '585ce48b9192f37df1cb746f5b562b0a';
         $this->url = 'http://demo.api.aurora.miskolczicsego';
     }
     /**

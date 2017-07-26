@@ -21,9 +21,15 @@ class CustomerGroupMigration extends BatchMigration
 
     protected $customerGroupUri = 'customerGroups';
 
-    public function __construct(CustomerDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
-    {
-        parent::__construct($dataProvider, $apiCall, $container);
+    protected $customerDatProvider;
+
+    public function __construct(
+        CustomerDataProvider $customerDataProvider,
+        ApiCall $apiCall,
+        ContainerInterface $container
+    ) {
+        $this->customerDatProvider = $customerDataProvider;
+        parent::__construct($customerDataProvider, $apiCall, $container);
     }
 
     public function process($customer)
@@ -31,7 +37,7 @@ class CustomerGroupMigration extends BatchMigration
         if(isset($customer->Group) && !array_key_exists($customer->Group->Name, $this->groups)) {
             $this->groups[$customer->Group->Name] = $customer->Group;
 
-            $groupOuterId = $this->getOuterId($customer->Group->Id);
+            $groupOuterId = $this->customerDatProvider->getCustomerGroupOuterId($customer->Group->Id);
 
             $data['id'] = $groupOuterId;
             $data['name'] = $customer->Group->Name;
@@ -40,8 +46,5 @@ class CustomerGroupMigration extends BatchMigration
         }
     }
 
-    public function getOuterId($data)
-    {
-        return base64_encode($data);
-    }
+
 }

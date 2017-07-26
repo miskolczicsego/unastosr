@@ -19,10 +19,43 @@ class CustomerDataProvider extends DataProvider
 
     public function getData()
     {
-        $fileUrl = $this->getFileUrl($this->fileName, $this->extension);
-        $content = file_get_contents($fileUrl);
+        $json = $this->getFileContentAsJson();
 
-        $customerObject = json_decode($content);
-        return $customerObject->Customers->Customer;
+        return $json->Customers->Customer;
+    }
+
+    /**
+     * @param $customerId
+     * @return string
+     */
+    public function getCustomerOuterId($customerId)
+    {
+        return base64_encode('customer-customerId=' . $customerId);
+    }
+
+    /**
+     * @param $customerGroupId
+     * @return string
+     */
+    public function getCustomerGroupOuterId($customerGroupId)
+    {
+        return base64_encode('customer-customerGroup=' . $customerGroupId);
+    }
+
+    public function getCustomerPhoneNumber($customer)
+    {
+        if (is_string($customer->Contact->Mobile)) {
+            return $customer->Contact->Mobile;
+        }
+        return $customer->Contact->Phone;
+    }
+
+    /**
+     * @param $email
+     * @return bool|false|string
+     */
+    public function generatePasswordFromEmail($email)
+    {
+        return password_hash($email, PASSWORD_DEFAULT);
     }
 }

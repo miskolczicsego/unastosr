@@ -19,11 +19,9 @@ class AddressDataProvider extends DataProvider
 
     public function getData()
     {
-        $fileUrl = $this->getFileUrl($this->fileName, $this->extension);
-        $content = file_get_contents($fileUrl);
+        $json = $this->getFileContentAsJson();
         $addresses = [];
-        $customerObject = json_decode($content);
-        foreach ($customerObject->Customers->Customer as $customer){
+        foreach ($json->Customers->Customer as $customer){
             $addresses['addresses'][] = [
                 'customerId' => $customer->Id,
                 'address' => $customer->Addresses
@@ -31,5 +29,27 @@ class AddressDataProvider extends DataProvider
         }
         return $addresses;
 
+    }
+
+    public function getShippingOuterId($address)
+    {
+        return base64_encode(
+            $address['address']->Shipping->Name .
+            $address['address']->Shipping->ZIP .
+            $address['address']->Shipping->City .
+            $address['address']->Shipping->Street .
+            $address['address']->Shipping->Country
+        );
+    }
+
+    public function getInvoiceOuterId($address)
+    {
+        return base64_encode(
+            $address['address']->Invoice->Name .
+            $address['address']->Invoice->ZIP .
+            $address['address']->Invoice->City .
+            $address['address']->Invoice->Street .
+            $address['address']->Invoice->Country
+        );
     }
 }

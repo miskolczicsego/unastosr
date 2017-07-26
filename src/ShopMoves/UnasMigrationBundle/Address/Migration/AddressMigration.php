@@ -11,6 +11,7 @@ namespace ShopMoves\UnasMigrationBundle\Address\Migration;
 
 use ShopMoves\UnasMigrationBundle\Address\Provider\AddressDataProvider;
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
+use ShopMoves\UnasMigrationBundle\Customer\Provider\CustomerDataProvider;
 use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -19,12 +20,19 @@ class AddressMigration extends BatchMigration
 
     protected $addressUri = 'addresses';
 
+    protected $addressDataProvider;
+
+    protected $customerDataProvider;
+
     public function __construct(
-        AddressDataProvider $dataProvider,
+        AddressDataProvider $addressDataProvider,
         ApiCall $apiCall,
-        ContainerInterface $container)
-    {
-        parent::__construct($dataProvider, $apiCall, $container);
+        ContainerInterface $container,
+        CustomerDataProvider $customerDataProvider
+    ) {
+        $this->addressDataProvider = $addressDataProvider;
+        $this->customerDataProvider = $customerDataProvider;
+        parent::__construct($addressDataProvider, $apiCall, $container);
     }
 
     public function process($addresses)
@@ -35,13 +43,11 @@ class AddressMigration extends BatchMigration
         foreach ($addresses as $address) {
 
             $nameHelper = $this->container->get('customer_name_helper');
-
-
             $shippingName = $nameHelper->separate($address['address']->Shipping->Name);
             $invoiceName = $nameHelper->separate($address['address']->Invoice->Name);
-            $shippingOuterId = $this->getShippingOuterId($address);
-            $invoiceOuterId = $this->getInvoiceOuterId($address);
-            $customerOuterId = $this->getCustomerOuterId($address['customerId']);
+            $shippingOuterId = $this->addressDataProvider->getShippingOuterId($address);
+            $invoiceOuterId = $this->addressDataProvider->getInvoiceOuterId($address);
+            $customerOuterId = $this->customerDataProvider->getCustomerOuterId($address['customerId']);
             //TODO: TaxNumbert bevinni
             if ($this->isAddressesEqual($address)) {
 
@@ -99,32 +105,5 @@ class AddressMigration extends BatchMigration
             return false;
         }
         return true;
-    }
-
-    public function getShippingOuterId($address)
-    {
-        return base64_encode(
-            $address['address']->Shipping->Name .
-            $address['address']->Shipping->ZIP .
-            $address['address']->Shipping->City .
-            $address['address']->Shipping->Street .
-            $address['address']->Shipping->Country
-        );
-    }
-
-    public function getInvoiceOuterId($address)
-    {
-        return base64_encode(
-            $address['address']->Invoice->Name .
-            $address['address']->Invoice->ZIP .
-            $address['address']->Invoice->City .
-            $address['address']->Invoice->Street .
-            $address['address']->Invoice->Country
-        );
-    }
-
-    public function getCustomerOuterId($data)
-    {
-        return base64_encode('customer-customer_id=' . $data);
     }
 }
