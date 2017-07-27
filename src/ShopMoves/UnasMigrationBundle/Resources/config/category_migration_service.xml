@@ -7,22 +7,45 @@
 
     <parameters>
         <parameter key="shopmoves.unasmigration.category.provider.categoryprovider.class">ShopMoves\UnasMigrationBundle\Category\Provider\CategoryDataProvider</parameter>
+        <parameter key="shopmoves.unasmigration.category.provider.categorydescriptiondataprovider.class">ShopMoves\UnasMigrationBundle\Category\Provider\CategoryDescriptionDataProvider</parameter>
+        <parameter key="shopmoves.unasmigration.category.provider.categorydtoproductdataprovider.class">ShopMoves\UnasMigrationBundle\Category\Provider\CategoryToProductDataProvider</parameter>
         <parameter key="shopmoves.unasmigration.category.migration.categorymigration.class">ShopMoves\UnasMigrationBundle\Category\Migration\CategoryMigration</parameter>
         <parameter key="shopmoves.unasmigration.category.migration.categorydescriptionmigration.class">ShopMoves\UnasMigrationBundle\Category\Migration\CategoryDescriptionMigration</parameter>
+        <parameter key="shopmoves.unasmigration.category.migration.categorytoproductmigration.class">ShopMoves\UnasMigrationBundle\Category\Migration\CategoryToProductMigration</parameter>
     </parameters>
 
     <services>
         <service id="category_data_provider" class="%shopmoves.unasmigration.category.provider.categoryprovider.class%">
             <argument type="service" id="service_container" />
+            <argument type="service" id="product_data_provider" />
         </service>
+
+        <service id="category_description_data_provider" class="%shopmoves.unasmigration.category.provider.categorydescriptiondataprovider.class%">
+            <argument type="service" id="service_container" />
+            <argument type="service" id="product_data_provider" />
+            <argument type="service" id="category_data_provider" />
+        </service>
+
+        <service id="category_to_product_data_provider" class="%shopmoves.unasmigration.category.provider.categorydtoproductdataprovider.class%">
+            <argument type="service" id="service_container" />
+            <argument type="service" id="product_data_provider" />
+            <argument type="service" id="category_data_provider" />
+        </service>
+
         <service id="category_migration" class="%shopmoves.unasmigration.category.migration.categorymigration.class%" >
             <argument type="service" id="category_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>
         </service>
 
-        <service id="category_desription_migration" class="%shopmoves.unasmigration.category.migration.categorydescriptionmigration.class%" >
-            <argument type="service" id="category_data_provider"/>
+        <service id="category_description_migration" class="%shopmoves.unasmigration.category.migration.categorydescriptionmigration.class%" >
+            <argument type="service" id="category_description_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="category_to_product_migration" class="%shopmoves.unasmigration.category.migration.categorytoproductmigration.class%" >
+            <argument type="service" id="category_to_product_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>
         </service>

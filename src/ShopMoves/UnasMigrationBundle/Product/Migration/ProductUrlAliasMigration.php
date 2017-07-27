@@ -36,11 +36,14 @@ class ProductUrlAliasMigration extends BatchMigration
         }
 
         $alias = $this->productDataProvider->getUrlAliasToProduct($product);
-        $data['urlAlias'] = $alias;
-        $data['type'] = 'PRODUCT';
-        $data['urlAliasEntity']['id'] = $this->productDataProvider->getProductOuterId($product->Sku);
+        $aliasOuterId = $this->productDataProvider->getUrlAliasOuterId($alias);
 
-        $this->addToBatchArray($this->urlAliasesUri, '', $data);
+        $urlAliasData['id'] = $aliasOuterId;
+        $urlAliasData['urlAlias'] = $alias;
+        $urlAliasData['type'] = 'PRODUCT';
+        $urlAliasData['urlAliasEntity']['id'] = $this->productDataProvider->getProductOuterId($product->Sku);
+
+        $this->addToBatchArray($this->urlAliasesUri, $aliasOuterId, $urlAliasData);
     }
 
 

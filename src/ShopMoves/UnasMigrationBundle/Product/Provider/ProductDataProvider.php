@@ -113,11 +113,16 @@ class ProductDataProvider extends DataProvider
 
     public function getProductOuterId($sku)
     {
-        return base64_encode('product_productSku=' . $sku . '_' .  $this->timeStamp);
+        return base64_encode('product-productSku=' . $sku . '_' .  $this->timeStamp);
     }
 
     public function getProductSpecialOuterId($sku)
     {
-        return base64_encode('product-productSpecial=' . $sku . '' . $this->timeStamp);
+        return base64_encode('product-productSpecial=' . $sku . $this->timeStamp);
+    }
+
+    public function getUrlAliasOuterId($urlAlias)
+    {
+        return base64_encode('product-productUrlAlias=' . $urlAlias . '|' . rand(1,9999999) . '|' .  $this->timeStamp);
     }
 }

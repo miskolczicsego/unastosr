@@ -87,17 +87,19 @@ abstract class BatchMigration
         }
         file_put_contents('status.log', 'End of process ' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL) , FILE_APPEND);
 
-
         if(!empty($this->batchData)) {
             $batch = [];
+            $name = explode('\\', get_class($this)) ;
+            file_put_contents('send_' . $name[count($name) - 1 ]  . '.log', print_r($this->batchData, true). PHP_EOL , FILE_APPEND);
             $time = 0;
             file_put_contents('api_send_status.log', 'Start of send to api ' . (get_class($this). PHP_EOL),FILE_APPEND);
             $chunk = array_chunk($this->batchData['requests'],$chunkSize, true);
             foreach ($chunk as $batch['requests']) {
                 $start = microtime(true);
-                $this->sendBatchData($batch);
+                $this->sendBatchChunkData($batch);
                 $time += (microtime(true) - $start);
             }
+            unset($this->batchData);
             file_put_contents('api_send_status.log', 'End of send to api' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL), FILE_APPEND);
         }
     }
@@ -128,15 +130,16 @@ abstract class BatchMigration
     //producthoz 200
 
 
-    public function sendBatchData($data)
+    public function sendBatchChunkData($data)
     {
         /** @var Response $response */
         $response = $this->apiCall->execute('POST', '/batch',  $data);
 
-        $data = $response->getData();
+        $responseData = $response->getData();
 
-        dump($data);
+        file_put_contents('response.log', $responseData . PHP_EOL, FILE_APPEND);
 
-        unset($this->batchData);
+
+        unset($responseData);
     }
 }

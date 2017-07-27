@@ -18,110 +18,50 @@ class CategoryMigration extends BatchMigration
 
     protected $categoryUri = 'categories';
 
-    protected $categoryDescriptionUri = 'categoryDescriptions';
+    protected $categoryDataProvider;
 
-    protected $productCategoryRelationsUri = 'productCategoryRelations';
-
-    protected $hungarianLanguageId = 'bGFuZ3VhZ2UtbGFuZ3VhZ2VfaWQ9MQ==';
-
-    public function __construct(CategoryDataProvider $dataProvider, ApiCall $apiCall, ContainerInterface $container)
+    public function __construct(
+        CategoryDataProvider $categoryDataProvider,
+        ApiCall $apiCall,
+        ContainerInterface $container)
     {
-        parent::__construct($dataProvider, $apiCall, $container);
+        $this->categoryDataProvider = $categoryDataProvider;
+        parent::__construct($categoryDataProvider, $apiCall, $container);
     }
 
-    public function process($product)
+    public function process($category)
     {
-        if ($this->isProductDeleted($product) || !isset($product->Categories)) {
-            return;
-        }
-        $category = $product->Categories->Category;
+        $this->buildCategoryBatch($category);
+    }
 
-        if(is_array($category)) {
-            foreach ($category as $cat) {
-                $this->buildCategoryBatch($cat, $product);
+    public function buildCategoryBatch($category)
+    {
+        $categoryParts = explode('|', $category['categoryName']);
+        if(count($categoryParts) > 1) {
+            $counter = 0;
+            $queue = [];
+            foreach ($categoryParts as $categoryPart) {
+                $parentCategoryString = implode('|', $queue);
+                array_push($queue, $categoryPart);
+
+                $categoryOuterId = $this
+                    ->categoryDataProvider
+                    ->getCategoryOuterId(implode('|', $queue));
+
+                if ($counter > 0) {
+                    $categoryData['parentCategory']['id'] = $this
+                        ->categoryDataProvider
+                        ->getCategoryOuterId($parentCategoryString);
+                }
+                $categoryData['id'] = $categoryOuterId;
+                $this->addToBatchArray($this->categoryUri, $categoryOuterId, $categoryData);
+
+                ++$counter;
             }
         } else {
-            $this->buildCategoryBatch($category, $product);
+            $categoryOuterId = $this->categoryDataProvider->getCategoryOuterId($category['categoryName']);
+            $categoryData['id'] = $categoryOuterId;
+            $this->addToBatchArray($this->categoryUri, $categoryOuterId, $categoryData);
         }
-    }
-
-    public function buildCategoryBatch($category, $product)
-    {
-        $productToCategoryData['product']['id'] = $this->getProductOuterId($product);
-        $productToCategoryData['category']['id'] = $this->getCategoryOuterId($category->Name);
-
-        $this->addToBatchArray($this->productCategoryRelationsUri, '', $productToCategoryData);
-        if(!array_key_exists($category->Id, $this->categoryIds)) {
-            $this->categoryIds[$category->Id] = 1;
-            $categoryParts = explode('|', $category->Name);
-            if(count($categoryParts) > 1) {
-                $counter = 0;
-                $queue = [];
-
-
-                foreach ($categoryParts as $categoryPart) {
-                    $parentCategoryString = implode('|', $queue);
-                    array_push($queue, $categoryPart);
-
-                    $categoryOuterId = $this->getCategoryOuterId(implode('|', $queue));
-                    $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId(implode('|', $queue) );
-                    if ($counter > 0) {
-                        $data['parentCategory']['id'] = $this->getCategoryOuterId($parentCategoryString);
-                    }
-                    $data['id'] = $categoryOuterId;
-
-                    $descriptionData['id'] = $categoryDescriptionOuterId;
-                    $descriptionData['name'] = $categoryPart;
-                    $descriptionData['category']['id'] = $categoryOuterId;
-                    $descriptionData['language'] = [
-                        "id" => $this->hungarianLanguageId
-                    ];
-
-
-                    $this->addToBatchArray($this->categoryUri, $categoryOuterId, $data);
-                    $this->addToBatchArray($this->categoryDescriptionUri, $categoryDescriptionOuterId, $descriptionData);
-
-                    ++$counter;
-                }
-            } else {
-                $categoryIds[$category->Id] = true;
-
-                $categoryOuterId = $this->getCategoryOuterId($category->Name);
-                $categoryDescriptionOuterId = $this->getCategoryDescriptionOuterId($category->Name);
-
-                $data['id'] = $categoryOuterId;
-
-                $descriptionData['id'] =  $categoryDescriptionOuterId;
-                $descriptionData['name'] = $category->Name;
-                $descriptionData['category']['id'] = $categoryOuterId;
-                $descriptionData['language'] = [
-                    "id" => $this->hungarianLanguageId
-                ];
-
-                $this->addToBatchArray($this->categoryUri, $categoryOuterId, $data);
-                $this->addToBatchArray($this->categoryDescriptionUri, $categoryDescriptionOuterId, $descriptionData);
-            }
-        }
-    }
-
-    public function getOuterId($category)
-    {
-        return base64_encode($category->Id);
-    }
-
-
-    public function getCategoryOuterId($data)
-    {
-        return base64_encode('category_name-Category=' . $data);
-    }
-
-    public function getCategoryDescriptionOuterId($data)
-    {
-        return base64_encode('category_name-CategoryDescription=' . $data);
-    }
-
-    public function getProductToCategoryOuterId($data)
-    {
-        return base64_encode('product_id-ProductToCategory=' . $data);
     }
 }
