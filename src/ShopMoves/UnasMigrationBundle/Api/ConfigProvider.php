@@ -25,6 +25,9 @@ class ConfigProvider
 
     public function setConfig()
     {
+//        $this->username = $data['sr-username'];
+//        $this->apiKey = $data['sr-password'];
+//        $this->url = $data['sr-api-url'];
 
 //        //ÉLES SAJÁT
 //        $this->username = 'test';

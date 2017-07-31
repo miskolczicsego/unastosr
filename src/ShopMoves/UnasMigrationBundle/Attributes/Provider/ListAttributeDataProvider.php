@@ -111,7 +111,7 @@ class ListAttributeDataProvider extends DataProvider
     public function setProductClassId($class)
     {
         if (!array_key_exists($class->Id, $this->productClassIds)) {
-            $this->productClassIds[$class->Name] = base64_encode('product-Product-Class=' . $class->Name . $this->timeStamp);
+            $this->productClassIds[$class->Name] = base64_encode('product-Product-Class=' . $class->Name);
         }
     }
 
@@ -143,7 +143,7 @@ class ListAttributeDataProvider extends DataProvider
      */
     public function getListAttributeValueOuterId($attributeValue)
     {
-        return base64_encode('product_listAttributeValue=' . $attributeValue . '_' . $this->timeStamp);
+        return base64_encode('product_listAttributeValue=' . $attributeValue);
     }
 
     /**
@@ -152,6 +152,6 @@ class ListAttributeDataProvider extends DataProvider
      */
     public function getListAttributeOuterId($slug)
     {
-        return base64_encode('product_listAttribute=' . $slug . $this->timeStamp);
+        return base64_encode('product_listAttribute=' . $slug);
     }
 }

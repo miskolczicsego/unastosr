@@ -76,7 +76,7 @@ class ProductClassDataProvider extends DataProvider
 
     public function getProductClassOuterId($className)
     {
-        return base64_encode('product-productClass=' . $className . $this->timeStamp);
+        return base64_encode('product-productClass=' . $className);
     }
 
 

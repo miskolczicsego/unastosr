@@ -13,7 +13,7 @@ class MigrationManager
 {
 
     /**
-     * @var ContainerAwareInterface $container
+     * @var ContainerInterface $container
      */
     protected $container;
 
@@ -46,9 +46,10 @@ class MigrationManager
     public function getListOfMigrations()
     {
         return [
-//            'customer_group_migration',
-//            'customer_migration',
-//            'customer_address_migration',
+            'customer_group_migration',
+            'customer_migration',
+            'customer_address_migration',
+            'newsletter_migration',
             'list_attribute_migration',
             'list_attribute_description_migration',
             'list_attribute_value_migration',
@@ -56,9 +57,10 @@ class MigrationManager
             'product_class_migration',
             'attribute_to_product_class',
             'product_migration',
+            'child_parent_migration',
+            'product_to_list_attribute_migration',
             'product_description_migration',
             'product_related_migration',
-            'product_to_list_attribute_migration',
             'product_special_price_migration',
             'product_url_alias_migration',
             'product_images_migration',
@@ -66,9 +68,9 @@ class MigrationManager
             'product_option_description_migration',
             'product_option_value_migration',
             'product_option_value_description_migration',
-//            'category_migration',
-//            'category_description_migration',
-//            'category_to_product_migration',
+            'category_migration',
+            'category_description_migration',
+            'category_to_product_migration',
         ];
 
     }
@@ -83,12 +85,6 @@ class MigrationManager
 
             unlink('api_send_status.log');
         }
-
-        if(file_exists('send.log')) {
-
-            unlink('send.log');
-        }
-
         if(file_exists('response.log')) {
 
             unlink('response.log');

@@ -55,13 +55,18 @@ class ProductDataProvider extends DataProvider
         }
     }
 
-    public function getProductQuantity($productStocks)
+    public function getProductQuantity($product)
     {
         $sum = 0;
-        foreach ($productStocks as $productStock) {
-            $sum += $productStock->Qty;
+        if (isset($product->Stocks->Stock)) {
+            if (count($product->Stocks->Stock) == 1) {
+                return $product->Stocks->Stock->Qty;
+            } else {
+                foreach ($product->Stocks->Stock as $productStock) {
+                    $sum += $productStock->Qty;
+                }
+            }
         }
-
         return $sum;
     }
 
@@ -108,21 +113,16 @@ class ProductDataProvider extends DataProvider
 
     public function getProductDescriptionOuterId($product)
     {
-        return base64_encode('product-productDescription=' . $product->Id . '_' .  $this->timeStamp);
+        return base64_encode('product-productDescription=' . $product->Id);
     }
 
     public function getProductOuterId($sku)
     {
-        return base64_encode('product-productSku=' . $sku . '_' .  $this->timeStamp);
+        return base64_encode('product-productSku=' . $sku);
     }
 
     public function getProductSpecialOuterId($sku)
     {
-        return base64_encode('product-productSpecial=' . $sku . $this->timeStamp);
-    }
-
-    public function getUrlAliasOuterId($urlAlias)
-    {
-        return base64_encode('product-productUrlAlias=' . $urlAlias . '|' . rand(1,9999999) . '|' .  $this->timeStamp);
+        return base64_encode('product-productSpecial=' . $sku);
     }
 }

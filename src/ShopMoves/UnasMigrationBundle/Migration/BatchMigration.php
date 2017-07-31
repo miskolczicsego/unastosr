@@ -75,7 +75,7 @@ abstract class BatchMigration
 
     public function migrate()
     {
-        $chunkSize = 5;
+        $chunkSize = 50;
         $datas = $this->dataProvider->getData();
         $time = 0;
 
@@ -86,7 +86,7 @@ abstract class BatchMigration
             $time += (microtime(true) - $start);
         }
         file_put_contents('status.log', 'End of process ' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL) , FILE_APPEND);
-
+//        dump($this->batchData);die;
         if(!empty($this->batchData)) {
             $batch = [];
             $name = explode('\\', get_class($this)) ;
@@ -99,7 +99,7 @@ abstract class BatchMigration
                 $this->sendBatchChunkData($batch);
                 $time += (microtime(true) - $start);
             }
-            unset($this->batchData);
+//            unset($this->batchData);
             file_put_contents('api_send_status.log', 'End of send to api' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL), FILE_APPEND);
         }
     }
@@ -108,6 +108,8 @@ abstract class BatchMigration
     {
 
 //        return "http://kiscip.api.shoprenter.hu";
+//       return 'http://pipereporta.api.shoprenter.hu';
+
 //        return "http://miskolczicsego.api.shoprenter.hu";
 
         return "http://demo.api.aurora.miskolczicsego";
@@ -134,11 +136,9 @@ abstract class BatchMigration
     {
         /** @var Response $response */
         $response = $this->apiCall->execute('POST', '/batch',  $data);
-
         $responseData = $response->getData();
 
-        file_put_contents('response.log', $responseData . PHP_EOL, FILE_APPEND);
-
+        dump($responseData);
 
         unset($responseData);
     }

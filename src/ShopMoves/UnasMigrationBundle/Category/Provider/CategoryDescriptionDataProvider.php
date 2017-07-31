@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CategoryDescriptionDataProvider extends DataProvider
 {
-    protected $fileName = 'kiscipoproduct';
+    protected $fileName = 'pipereproduct';
 
     protected $extension = 'json';
 
@@ -60,6 +60,7 @@ class CategoryDescriptionDataProvider extends DataProvider
                 $this->gatherCategoryDescriptionData($category);
             }
         }
+
         return $this->categoryDescriptionData;
     }
 
@@ -77,7 +78,7 @@ class CategoryDescriptionDataProvider extends DataProvider
                         ->categoryDataProvider
                         ->getCategoryOuterId(implode('|', $queue));
 
-                    $this->categoryDescriptionData[$categoryPart] = [
+                    $this->categoryDescriptionData[implode('|', $queue)] = [
                         'categoryId' => $categoryOuterId,
                         'name' => $categoryPart
                     ];

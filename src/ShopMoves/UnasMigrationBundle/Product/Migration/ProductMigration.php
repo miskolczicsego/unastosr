@@ -34,12 +34,16 @@ class ProductMigration extends BatchMigration
     protected $productClassDataProvider;
 
 
+    protected $skus = [];
+
+
     /**
      * ProductMigration constructor.
      * @param ProductDataProvider $productDataProvider
+     * @param ProductClassDataProvider $productClassDataProvider
      * @param ApiCall $apiCall
      * @param ContainerInterface $container
-     */
+     **/
     public function __construct(
         ProductDataProvider $productDataProvider,
         ProductClassDataProvider $productClassDataProvider,
@@ -63,10 +67,12 @@ class ProductMigration extends BatchMigration
             return;
         }
 
+        $this->skus[$product->Sku] = true;
+
+
         $unasStatus = $product->Statuses->Status->Value;
 
         $srStatus = $unasStatus == '0' ? '0' : '1';
-
         $productOuterId = $this->productDataProvider->getProductOuterId($product->Sku);
         $productData['id'] = $productOuterId;
         $productData['sku'] = $product->Sku;
@@ -78,15 +84,13 @@ class ProductMigration extends BatchMigration
             $product->Prices->Price->Net :
             $this->productDataProvider->getProductPrice($product->Prices->Price);
 
-        $productData['stock1'] = count($product->Stocks->Stock) == 1 ?
-            $product->Stocks->Stock->Qty :
-            $this->productDataProvider->getProductQuantity($product->Stocks->Stock);
+        $productData['stock1'] = $this->productDataProvider->getProductQuantity($product);
 
         $productData['taxClass'] = [
             'id' => $this->taxHelper->getTaxId($product->Prices->Vat)
         ];
         $productData['mainPicture'] = $this->productDataProvider->getMainPictureToProduct($product);
-        $productData['parentProduct']['id'] = $this->productDataProvider->getParentProductId($product);
+
         $productData['productClass']['id'] = $this->productClassDataProvider->getProductClassIdToProduct($product);
 
         $this->addToBatchArray($this->productUri, $productOuterId, $productData);

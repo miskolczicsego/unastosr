@@ -13,7 +13,7 @@ use ShopMoves\UnasMigrationBundle\Provider\DataProvider;
 
 class AddressDataProvider extends DataProvider
 {
-    protected $fileName = 'customer';
+    protected $fileName = 'kiscipocustomer';
 
     protected $extension = 'json';
 

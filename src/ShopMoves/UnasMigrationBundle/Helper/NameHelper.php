@@ -29,7 +29,7 @@ class NameHelper
         $nameParts = [];
         //Csegő
         if (count($data) === 1) {
-            $nameParts['fisrtname'] = $data[0];
+            $nameParts['firstname'] = $data[0];
             $nameParts['lastname'] = '-';
         }
         //Miskolczi Csegő || Miskolczi-Kis Csegő

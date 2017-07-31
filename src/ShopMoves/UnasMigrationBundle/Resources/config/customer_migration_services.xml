@@ -4,14 +4,20 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="shopmoves.unasmigration.customer.migration.customermigration.class">ShopMoves\UnasMigrationBundle\Customer\Migration\CustomerMigration</parameter>
+        <parameter key="shopmoves.unasmigration.newsletter.migration.newslettermigration.class">ShopMoves\UnasMigrationBundle\Newsletter\Migration\NewsletterMigration</parameter>
         <parameter key="shopmoves.unasmigration.customer.migration.customerGroupmigration.class">ShopMoves\UnasMigrationBundle\Customer\Migration\CustomerGroupMigration</parameter>
         <parameter key="shopmoves.unasmigration.customer.provider.customerdataprovider.class">ShopMoves\UnasMigrationBundle\Customer\Provider\CustomerDataProvider</parameter>
+        <parameter key="shopmoves.unasmigration.newsletter.provider.newsletterdataprovider.class">ShopMoves\UnasMigrationBundle\Newsletter\Provider\NewsletterDataProvider</parameter>
         <parameter key="shopmoves.unasmigration.helper.namehelper.class">ShopMoves\UnasMigrationBundle\Helper\NameHelper</parameter>
         <parameter key="shopmoves.unasmigration.helper.customergrouphelper.class">ShopMoves\UnasMigrationBundle\Helper\CustomerGroupHelper</parameter>
 
     </parameters>
     <services>
         <service id="customer_data_provider" class="%shopmoves.unasmigration.customer.provider.customerdataprovider.class%">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="newsletter_data_provider" class="%shopmoves.unasmigration.newsletter.provider.newsletterdataprovider.class%">
             <argument type="service" id="service_container"/>
         </service>
 
@@ -24,6 +30,13 @@
 
         <service id="customer_group_migration" class="%shopmoves.unasmigration.customer.migration.customergroupmigration.class%">
             <argument type="service" id="customer_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+
+        </service>
+
+        <service id="newsletter_migration" class="%shopmoves.unasmigration.newsletter.migration.newslettermigration.class%">
+            <argument type="service" id="newsletter_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>
 

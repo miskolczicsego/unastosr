@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: miskolczicsego
- * Date: 2017.07.06.
- * Time: 17:00
+ * Date: 2017.07.31.
+ * Time: 13:43
  */
 
 namespace ShopMoves\UnasMigrationBundle\Product\Migration;
@@ -14,11 +14,12 @@ use ShopMoves\UnasMigrationBundle\Migration\BatchMigration;
 use ShopMoves\UnasMigrationBundle\Product\Provider\ProductDataProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class ProductUrlAliasMigration extends BatchMigration
+class ChildParentRelationMigration extends BatchMigration
 {
-    protected $urlAliasesUri = 'urlAliases';
 
     protected $productDataProvider;
+
+    protected $productUri = 'products';
 
     public function __construct(
         ProductDataProvider $productDataProvider,
@@ -35,15 +36,11 @@ class ProductUrlAliasMigration extends BatchMigration
             return;
         }
 
-        $alias = $this->productDataProvider->getUrlAliasToProduct($product);
-        $aliasOuterId = $this->productDataProvider->getUrlAliasOuterId($alias);
+        $productOuterId = $this->productDataProvider->getProductOuterId($product->Sku);
+        $productData['id'] = $productOuterId;
+        $productData['sku'] = $product->Sku;
+        $productData['parentProduct']['id'] = $this->productDataProvider->getParentProductId($product);
 
-        $urlAliasData['urlAlias'] = $alias;
-        $urlAliasData['type'] = 'PRODUCT';
-        $urlAliasData['urlAliasEntity']['id'] = $this->productDataProvider->getProductOuterId($product->Sku);
-
-        $this->addToBatchArray($this->urlAliasesUri, '0', $urlAliasData);
+        $this->addToBatchArray($this->productUri, $productOuterId, $productData);
     }
-
-
 }

@@ -7,6 +7,7 @@
         <parameter key="shopmoves.unasmigration.product.migration.productspecialpricemigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductSpecialPriceMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.migration.producturlaliasmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductUrlAliasMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.migration.productimagemigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductImageMigration</parameter>
+        <parameter key="shopmoves.unasmigration.product.migration.childparentrelationmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ChildParentRelationMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.migration.productclassmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductClassMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.migration.productdescriptionmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\ProductDescriptionMigration</parameter>
         <parameter key="shopmoves.unasmigration.product.migration.relatedproductmigration.class">ShopMoves\UnasMigrationBundle\Product\Migration\RelatedProductMigration</parameter>
@@ -49,6 +50,12 @@
         </service>
 
         <service id="product_description_migration" class="%shopmoves.unasmigration.product.migration.productdescriptionmigration.class%">
+            <argument type="service" id="product_data_provider"/>
+            <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="child_parent_migration" class="%shopmoves.unasmigration.product.migration.childparentrelationmigration.class%">
             <argument type="service" id="product_data_provider"/>
             <argument type="service" id="shopmoves.unasmigration.api.apicall"/>
             <argument type="service" id="service_container"/>

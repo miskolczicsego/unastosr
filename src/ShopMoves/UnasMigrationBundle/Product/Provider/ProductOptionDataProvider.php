@@ -94,12 +94,12 @@ class ProductOptionDataProvider extends DataProvider
 
     public function getProductOptionOuterId($optionName, $sku)
     {
-        return base64_encode('product-productOption=' . $optionName . '|' . $sku . '|' . $this->timeStamp);
+        return base64_encode('product-productOption=' . $optionName . '|' . $sku);
     }
 
 
     public function getProductOptionValueOuterId($optionValue, $sku)
     {
-        return base64_encode('product-productOptionValue=' . $optionValue  . '|' . $sku . '|' .  $this->timeStamp);
+        return base64_encode('product-productOptionValue=' . $optionValue  . '|' . $sku);
     }
 }

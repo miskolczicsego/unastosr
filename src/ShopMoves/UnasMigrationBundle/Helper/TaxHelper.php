@@ -14,7 +14,8 @@ class TaxHelper
     public function getTaxId($tax)
     {
         $taxes = [
-            '27%' => base64_encode('taxClass-tax_class_id=10')
+            '27%' => base64_encode('taxClass-tax_class_id=10'),
+            '0%' => base64_encode('taxClass-tax_class_id=11')
         ];
 
         return $taxes[$tax];

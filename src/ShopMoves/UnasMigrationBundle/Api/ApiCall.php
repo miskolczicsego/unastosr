@@ -41,8 +41,6 @@ class ApiCall
     protected $response;
 
 
-
-
     /**
      * ApiCall constructor.
      * @param Curl $curl

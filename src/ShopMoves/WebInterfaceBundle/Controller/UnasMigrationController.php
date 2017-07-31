@@ -28,42 +28,52 @@ class UnasMigrationController extends Controller
                 "label" => "Username",
                 "data" => "kiscipo.hu"
             ])
-            ->add("password", TextType::class, [
-                "label" => "password",
+            ->add("passwordcrypt", TextType::class, [
+                "label" => "passwordcrypt",
                 "data" => "22aa6c9523fdeeaf5b6431c6f2213d8a"
             ])
-            ->add("shopid", TextType::class, [
+            ->add("shopId", TextType::class, [
                 "label" => "Shop ID",
                 "data" => "54927"
 
             ])
-            ->add("auth", TextType::class, [
+            ->add("authcode", TextType::class, [
                 "label" => "Authentication code",
                 "data" => "a35f40d18d"
             ])
+
+            ->add("sr-api-url", TextType::class, [
+                "label" => "SR API URL",
+                "data" => "http://demo.api.aurora.miskolczicsego"
+            ])
+            ->add("sr-username", TextType::class, [
+                "label" => "SR api user",
+                "data" => 'test'
+            ])
+
+            ->add("sr-password", TextType::class, [
+                "label" => "SR api pass",
+                'data' => '2dcd07ef6f3515a5f3a00daba7967fb6'
+            ])
             ->add("save", SubmitType::class, [
-                "label" => "Go!!!"
-            ]);
-        $srFormDecorator = new ShoprenterDecorator();
-        $form = $srFormDecorator->addSrFields($form)->getForm();
+                "label" => 'Migrate'
+            ])
+            ->getForm();
+
         return $this->render('@ShopMovesWebInterface/Unas/index.html.twig', ["form" => $form->createView()]);
     }
 
     public function startAction(Request $request)
     {
         $post = $request->request->get("form");
-        $migrationId = $post["username"] . Date("ymdHis");
-        /** @var UnasDownloader $unasDownloader */
-        $unasDownloader = $this->get("unas_downloader");
-        $unasDownloader->setMigrationId($migrationId);
-        $unasDownloader->setConfig(
-            $post["username"],
-            $post["password"],
-            $post["shopid"],
-            $post["auth"],
-            $this->getParameter("kernel.cache_dir")
-        );
-        $unasDownloader->download();
+        $apiConfigProvider = $this->get('shopmoves.unasmigration.api.config_provider');
+        $apiConfigProvider->setConfig($post);
+        $apiCall = $this->container->get('shopmoves.unasmigration.api.apicall');
+//        $downloaderUrl = "{$this->getParameter("unas-downloader-url")}/start";
+
+       return $this->redirectToRoute('shop_moves_unas_migration_start');
+//        $this->httpPost($downloaderUrl, $post);
+
 
 //        return new RedirectResponse($this->generateUrl("shop_moves_unas_webinterface_home"));
     }
@@ -75,5 +85,27 @@ class UnasMigrationController extends Controller
         $response = $downloader->download();
 
         return new Response($response);
+    }
+
+    public function httpPost($url, $data)
+    {
+        $ch = curl_init();
+
+        $postfield = http_build_query($data);
+
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postfield);
+
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $server_output = curl_exec($ch);
+        $info = curl_getinfo($ch);
+        $error = curl_error($ch);
+
+        curl_close ($ch);
+
+        dump($server_output, $error, $info);die;
     }
 }

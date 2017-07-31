@@ -62,8 +62,9 @@ class CustomerMigration extends BatchMigration
         $data['email'] = $customerData->Email;
         $data['telephone'] = $this->customerDataProvider->getCustomerPhoneNumber($customerData);
         $data['password'] = $this->customerDataProvider->generatePasswordFromEmail($customerData->Email);
-        $data['newsletter'] = $customerData->Newsletter->Subscribed == "yes" ? 1 : 0;
+        $data['newsletter'] = $customerData->Newsletter->Subscribed == "yes" ? '1' : '0';
         $data['status'] = $customerData->Authorize->Customer == "yes" ? 1 : 0;
+        $data['approved'] = 1;
         $data['customerGroup'] = [
             'id' => isset($customerData->Group->Id) ?
                 $this->customerDataProvider->getCustomerGroupOuterId($customerData->Group->Id) :
