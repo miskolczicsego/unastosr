@@ -12,6 +12,8 @@ web_profiler:
     intercept_redirects: false
 
 monolog:
+    channels:
+        - unasmigration
     handlers:
         main:
             type: stream
@@ -21,6 +23,12 @@ monolog:
         console:
             type: console
             channels: ['!event', '!doctrine']
+        unasmigration:
+            type: rotating_file
+            max_files: 10
+            path: '%kernel.logs_dir%/unasmigration.log'
+            level: debug
+            channels: ['unasmigration']
         # uncomment to get logging in your browser
         # you may have to allow bigger header sizes in your Web server configuration
         #firephp:

@@ -9,6 +9,7 @@
 namespace ShopMoves\UnasMigrationBundle\Migration;
 
 
+use Monolog\Logger;
 use ShopMoves\UnasMigrationBundle\Api\ApiCall;
 use ShopMoves\UnasMigrationBundle\Api\Response;
 use ShopMoves\UnasMigrationBundle\Helper\LanguageHelper;
@@ -52,10 +53,15 @@ abstract class BatchMigration
 
     protected $timeStamp;
 
+    protected $chunkSize;
+
     /**
      * @var IDataProvider $dataProvider
      */
     protected $dataProvider;
+
+    /** @var Logger $logger */
+    protected $logger;
 
     abstract public function process($data);
 
@@ -63,9 +69,12 @@ abstract class BatchMigration
         IDataProvider $dataProvider,
         ApiCall $apiCall,
         ContainerInterface $container
-    ) {
+    )
+    {
         $this->timeStamp = $container->get('timestamp_provider')->getTimestamp();
         $this->container = $container;
+        $this->chunkSize = $this->container->getParameter('chunksize');
+        $this->logger = $container->get('monolog.logger.unasmigration');
         $this->apiCall = $apiCall;
         $this->dataProvider = $dataProvider;
         $this->languageHelper = $container->get('language_helper');
@@ -75,32 +84,14 @@ abstract class BatchMigration
 
     public function migrate()
     {
-        $chunkSize = 50;
-        $datas = $this->dataProvider->getData();
-        $time = 0;
 
-        file_put_contents('status.log', 'Start of process ' . (get_class($this). PHP_EOL), FILE_APPEND);
-        foreach ($datas as $data){
-            $start = microtime(true);
-            $this->process($data);
-            $time += (microtime(true) - $start);
-        }
-        file_put_contents('status.log', 'End of process ' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL) , FILE_APPEND);
-//        dump($this->batchData);die;
-        if(!empty($this->batchData)) {
-            $batch = [];
-            $name = explode('\\', get_class($this)) ;
-            file_put_contents('send_' . $name[count($name) - 1 ]  . '.log', print_r($this->batchData, true). PHP_EOL , FILE_APPEND);
-            $time = 0;
-            file_put_contents('api_send_status.log', 'Start of send to api ' . (get_class($this). PHP_EOL),FILE_APPEND);
-            $chunk = array_chunk($this->batchData['requests'],$chunkSize, true);
-            foreach ($chunk as $batch['requests']) {
-                $start = microtime(true);
-                $this->sendBatchChunkData($batch);
-                $time += (microtime(true) - $start);
-            }
-//            unset($this->batchData);
-            file_put_contents('api_send_status.log', 'End of send to api' . (get_class($this) .' | TIME: ' . number_format($time, 2, '.', ' ') . ' Sec' . PHP_EOL), FILE_APPEND);
+        $datas = $this->dataProvider->getData();
+
+        $this->processUnasDatas($datas);
+
+        if (!empty($this->batchData)) {
+            $this->logSendedData();
+            $this->processBatchData();
         }
     }
 
@@ -115,11 +106,11 @@ abstract class BatchMigration
         return "http://demo.api.aurora.miskolczicsego";
     }
 
-    public function addToBatchArray($resourceUri, $id='', $data)
+    public function addToBatchArray($resourceUri, $id = '', $data)
     {
         $this->batchData['requests'][] = [
             'method' => 'POST',
-            'uri' => $this->getUrl() . '/' .$resourceUri  . (!empty($id) ? '/' . $id : ''),
+            'uri' => $this->getUrl() . '/' . $resourceUri . (!empty($id) ? '/' . $id : ''),
             'data' => $data
         ];
     }
@@ -135,11 +126,65 @@ abstract class BatchMigration
     public function sendBatchChunkData($data)
     {
         /** @var Response $response */
-        $response = $this->apiCall->execute('POST', '/batch',  $data);
+        $response = $this->apiCall->execute('POST', '/batch', $data);
         $responseData = $response->getData();
 
-        dump($responseData);
+        $this->logger->info('Response from SR Api: ', ['data' => serialize($responseData)]);
 
         unset($responseData);
+    }
+
+    public function processUnasDatas($datas)
+    {
+        $this->logger->debug(
+            'Start of process ', [
+                'class' => get_class($this)
+            ]
+        );
+
+        $time = 0;
+        foreach ($datas as $data){
+            $start = microtime(true);
+            $this->process($data);
+            $time += (microtime(true) - $start);
+        }
+
+        $this->logger->debug(
+            'End of process ', [
+                'class' => get_class($this),
+                'time' => number_format($time, 2, '.', ' ') . ' Sec'
+            ]
+        );
+    }
+
+    public function processBatchData()
+    {
+        $batch = [];
+        $time = 0;
+        $chunk = array_chunk($this->batchData['requests'], $this->chunkSize, true);
+
+        $this->logger->debug(
+            'Start of send to api ', [
+                'class' => get_class($this)
+            ]
+        );
+        foreach ($chunk as $batch['requests']) {
+            $start = microtime(true);
+            $this->sendBatchChunkData($batch);
+            $time += (microtime(true) - $start);
+        }
+        $this->logger->debug(
+            'End of send to api ', [
+                'class' => get_class($this),
+                'time' => number_format($time, 2, '.', ' ') . ' Sec'
+            ]
+        );
+
+    }
+
+    public function logSendedData()
+    {
+        $name = explode('\\', get_class($this));
+        $this->logger->info('Sended data: ', ['class' => $name[count($name) - 1], 'data' => serialize($this->batchData)]);
     }
 }
