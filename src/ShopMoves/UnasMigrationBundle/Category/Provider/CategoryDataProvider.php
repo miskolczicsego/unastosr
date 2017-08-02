@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CategoryDataProvider extends DataProvider
 {
-    protected $fileName = 'pipereproduct';
+    protected $fileName = '1501662054503product';
 
     protected $extension = 'json';
 

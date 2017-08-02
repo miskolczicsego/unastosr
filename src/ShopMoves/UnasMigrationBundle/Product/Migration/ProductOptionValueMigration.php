@@ -38,13 +38,15 @@ class ProductOptionValueMigration extends BatchMigration
 
     public function process($option)
     {
-        if (is_array($option['values'])) {
-            foreach ($option['values'] as $optionValue) {
+        foreach ($option as $opt) {
+            if (is_array($opt['values'])) {
+                foreach ($opt['values'] as $optionValue) {
 
-                $this->buildOptionValueBatch($optionValue, $option);
+                    $this->buildOptionValueBatch($optionValue, $opt);
+                }
+            } else {
+                $this->buildOptionValueBatch($opt['values'], $opt);
             }
-        } else {
-            $this->buildOptionValueBatch($option['values'], $option);
         }
 
     }
@@ -60,8 +62,18 @@ class ProductOptionValueMigration extends BatchMigration
             ->getProductOptionOuterId($option['name'], $option['productSku']);
 
 
+
         $productOptionValueData['id'] = $productOptionValueOuterId;
         $productOptionValueData['productOption']['id'] = $productOptionOuterId;
+        if (isset($optionValue->ExtraPrice)) {
+            if (intval($optionValue->ExtraPrice) < 0) {
+
+                $productOptionValueData['prefix'] = '-';
+            } else {
+                $productOptionValueData['prefix'] = '+';
+            }
+            $productOptionValueData['price'] = $optionValue->ExtraPrice / (1 + $option['taxValue'] / 100);
+        }
 
         $this->addToBatchArray($this->productOptionValuesUri, $productOptionValueOuterId, $productOptionValueData);
     }

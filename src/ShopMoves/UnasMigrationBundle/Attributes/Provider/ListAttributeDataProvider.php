@@ -23,7 +23,7 @@ class ListAttributeDataProvider extends DataProvider
      */
     protected $slugifier;
 
-    protected $fileName = 'kiscipoproduct';
+    protected $fileName = '1501662054503product';
 
     protected $extension = 'json';
 

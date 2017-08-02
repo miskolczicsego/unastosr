@@ -11,6 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ProductDataProvider extends DataProvider
 {
+//    protected $fileName = '1501662054503product';
     protected $fileName = 'kiscipoproduct';
 
     protected $extension = 'json';
@@ -109,6 +110,11 @@ class ProductDataProvider extends DataProvider
         }
 
         return $special;
+    }
+
+    public function getProductTaxValue($product)
+    {
+        return intval(explode('%', $product->Prices->Vat)[0]);
     }
 
     public function getProductDescriptionOuterId($product)

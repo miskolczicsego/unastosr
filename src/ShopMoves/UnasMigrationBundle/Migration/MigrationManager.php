@@ -45,7 +45,7 @@ class MigrationManager
     public function getListOfMigrations()
     {
         return [
-            'customer_group_migration',
+//            'customer_group_migration',
 //            'customer_migration',
 //            'customer_address_migration',
 //            'newsletter_migration',
@@ -56,12 +56,12 @@ class MigrationManager
 //            'product_class_migration',
 //            'attribute_to_product_class',
 //            'product_migration',
+//            'product_description_migration',
+            'product_url_alias_migration',
 //            'child_parent_migration',
 //            'product_to_list_attribute_migration',
-//            'product_description_migration',
 //            'product_related_migration',
 //            'product_special_price_migration',
-//            'product_url_alias_migration',
 //            'product_images_migration',
 //            'product_option_migration',
 //            'product_option_description_migration',

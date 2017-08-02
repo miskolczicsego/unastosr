@@ -15,6 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ProductOptionDataProvider extends DataProvider
 {
 
+//    protected $fileName = '1501662054503product';
     protected $fileName = 'kiscipoproduct';
 
     protected $extension = 'json';
@@ -36,7 +37,7 @@ class ProductOptionDataProvider extends DataProvider
     public function getData()
     {
         $products = $this->getFileContentAsJson();
-
+        $this->optionDatas = [];
         foreach ($products->Products->Product as $product) {
             if ($this->productDataProvider->isProductDeleted($product) ||
                 !isset($product->Variants) ||
@@ -56,14 +57,16 @@ class ProductOptionDataProvider extends DataProvider
             }
         }
 
+
         return $this->optionDatas;
 
     }
 
     public function gatherOptionDatasToProduct($option, $product)
     {
-        $this->optionDatas[$product->Sku] = [
+        $this->optionDatas[$product->Sku][] = [
             'name' => $option->Name,
+            'taxValue' => $this->productDataProvider->getProductTaxValue($product),
             'productSku' => $product->Sku,
             'values' => $this->collectValuesToOption($option->Values->Value)
         ];

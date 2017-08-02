@@ -35,13 +35,15 @@ class ProductOptionValueDescriptionMigration extends BatchMigration
 
     public function process($option)
     {
-        if (is_array($option['values'])) {
-            foreach ($option['values'] as $optionValue) {
+        foreach ($option as $opt) {
+            if (is_array($opt['values'])) {
+                foreach ($opt['values'] as $optionValue) {
 
-                $this->buildOptionValueDescriptionBatch($optionValue, $option);
+                    $this->buildOptionValueDescriptionBatch($optionValue, $opt);
+                }
+            } else {
+                $this->buildOptionValueDescriptionBatch($opt['values'], $opt);
             }
-        } else {
-            $this->buildOptionValueDescriptionBatch($option['values'], $option);
         }
     }
 

@@ -44,13 +44,15 @@ class ProductOptionDescriptionMigration extends BatchMigration
 
     public function process($option)
     {
-        $productOptionDescriptionData['name'] = $option['name'];
-        $productOptionDescriptionData['productOption']['id'] = $this
-            ->productOptionDataProvider
-            ->getProductOptionOuterId($option['name'], $option['productSku']);
+        foreach ($option as $opt) {
+            $productOptionDescriptionData['name'] = $opt['name'];
+            $productOptionDescriptionData['productOption']['id'] = $this
+                ->productOptionDataProvider
+                ->getProductOptionOuterId($opt['name'], $opt['productSku']);
 
-        $productOptionDescriptionData['language']['id'] = $this->hungarianLanguageId;
+            $productOptionDescriptionData['language']['id'] = $this->hungarianLanguageId;
 
-        $this->addToBatchArray($this->productOptionDescriptionsUri, '' , $productOptionDescriptionData);
+            $this->addToBatchArray($this->productOptionDescriptionsUri, '' , $productOptionDescriptionData);
+        }
     }
 }

@@ -90,7 +90,7 @@ abstract class BatchMigration
         $this->processUnasDatas($datas);
 
         if (!empty($this->batchData)) {
-            $this->logSendedData();
+//            $this->logSendedData();
             $this->processBatchData();
         }
     }
@@ -98,12 +98,12 @@ abstract class BatchMigration
     public function getUrl()
     {
 
-//        return "http://kiscip.api.shoprenter.hu";
+        return "http://kiscip.api.shoprenter.hu";
 //       return 'http://pipereporta.api.shoprenter.hu';
 
 //        return "http://miskolczicsego.api.shoprenter.hu";
 
-        return "http://demo.api.aurora.miskolczicsego";
+//        return "http://demo.api.aurora.miskolczicsego";
     }
 
     public function addToBatchArray($resourceUri, $id = '', $data)
@@ -129,8 +129,7 @@ abstract class BatchMigration
         $response = $this->apiCall->execute('POST', '/batch', $data);
         $responseData = $response->getData();
 
-        $this->logger->info('Response from SR Api: ', ['data' => serialize($responseData)]);
-
+        dump($responseData);
         unset($responseData);
     }
 

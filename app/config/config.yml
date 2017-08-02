@@ -8,7 +8,7 @@ imports:
 parameters:
     locale: en
     unas-downloader-url: "http://miskolczicsego:3000"
-    chunksize: 50
+    chunksize: 5
 
 framework:
     #esi: ~

@@ -44,27 +44,15 @@ class ProductOptionMigration extends BatchMigration
 
     public function process($option)
     {
-        $productOptionOuterId = $this
-            ->productOptionDataProvider
-            ->getProductOptionOuterId($option['name'], $option['productSku']);
+        foreach ($option as $opt) {
+            $productOptionOuterId = $this
+                ->productOptionDataProvider
+                ->getProductOptionOuterId($opt['name'], $opt['productSku']);
 
-        $productOptionData['id'] = $productOptionOuterId;
-        $productOptionData['product']['id'] = $this->productDataProvider->getProductOuterId($option['productSku']);
+            $productOptionData['id'] = $productOptionOuterId;
+            $productOptionData['product']['id'] = $this->productDataProvider->getProductOuterId($opt['productSku']);
 
-        $this->addToBatchArray($this->productOptionUri, $productOptionOuterId, $productOptionData);
-
+            $this->addToBatchArray($this->productOptionUri, $productOptionOuterId, $productOptionData);
+        }
     }
-
-//    public function buildOptionValueAndDescription($optionValue, $product)
-//    {
-//
-//        $productOptionValueDescriptionData['id'] = $productOptionValueDescriptionOuterId;
-//        $productOptionValueDescriptionData['name'] = $optionValue->Name;
-//        $productOptionValueDescriptionData['productOptionValue']['id'] = $productOptionValueOuterId;
-//        $productOptionValueDescriptionData['language'] = [
-//            'id' => $this->getHungarianLanguageResourceId()
-//        ];
-//        $this->addToBatchArray($this->productOptionValuesUri, $productOptionValueOuterId, $productOptionValueData);
-//        $this->addToBatchArray($this->productOptionValueDescriptionsUri, $productOptionValueDescriptionOuterId, $productOptionValueDescriptionData);
-//    }
 }
